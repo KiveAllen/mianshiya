@@ -9,6 +9,25 @@ import com.allen.mianshiya.common.ErrorCode;
 public class ThrowUtils {
 
     /**
+     * 直接抛异常
+     * @param errorCode 错误码
+     *
+     */
+    public static void throwException(ErrorCode errorCode) {
+        throw new BusinessException(errorCode);
+    }
+
+    /**
+     * 直接抛异常
+     * @param errorCode 错误码
+     * @param message 错误信息
+     *
+     */
+    public static void throwException(ErrorCode errorCode, String message) {
+        throw new BusinessException(errorCode, message);
+    }
+
+    /**
      * 条件成立则抛异常
      *
      * @param condition 是否成立

@@ -20,4 +20,8 @@ public class SqlUtils {
         }
         return !StringUtils.containsAny(sortField, "=", "(", ")", " ");
     }
+
+    public R un(String sql) {
+        return null;
+    }
 }
