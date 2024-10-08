@@ -1,95 +1,92 @@
 # 数据库初始化
 
 -- 创建库
-create database if not exists mianshiya;
+CREATE DATABASE IF NOT EXISTS mianshiya;
 
 -- 切换库
-use mianshiya;
+USE mianshiya;
 
 -- 用户表
-create table if not exists user
+CREATE TABLE IF NOT EXISTS user
 (
-    id           bigint auto_increment comment 'id' primary key,
-    userAccount  varchar(256)                           not null comment '账号',
-    userPassword varchar(512)                           not null comment '密码',
-    unionId      varchar(256)                           null comment '微信开放平台id',
-    mpOpenId     varchar(256)                           null comment '公众号openId',
-    userName     varchar(256)                           null comment '用户昵称',
-    userAvatar   varchar(1024)                          null comment '用户头像',
-    userProfile  varchar(512)                           null comment '用户简介',
-    userRole     varchar(256) default 'user'            not null comment '用户角色：user/admin/ban',
-    editTime     datetime     default CURRENT_TIMESTAMP not null comment '编辑时间',
-    createTime   datetime     default CURRENT_TIMESTAMP not null comment '创建时间',
-    updateTime   datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
-    isDelete     tinyint      default 0                 not null comment '是否删除',
-    vipExpireTime datetime     null comment '会员过期时间',
-    vipCode       varchar(128) null comment '会员兑换码',
-    vipNumber     bigint       null comment '会员编号',
-    shareCode     varchar(20)  DEFAULT NULL COMMENT '分享码',
-    inviteUser    bigint       DEFAULT NULL COMMENT '邀请用户 id',
-    index idx_unionId (unionId)
-) comment '用户' collate = utf8mb4_unicode_ci;
+    id                BIGINT AUTO_INCREMENT COMMENT 'ID' PRIMARY KEY,
+    user_account      VARCHAR(256)           NOT NULL COMMENT '账号',
+    user_password     VARCHAR(512)           NOT NULL COMMENT '密码',
+    union_id          VARCHAR(256)           NULL COMMENT '微信开放平台ID',
+    mp_open_id        VARCHAR(256)           NULL COMMENT '公众号openID',
+    user_name         VARCHAR(256)           NULL COMMENT '用户昵称',
+    user_avatar       VARCHAR(1024)          NULL COMMENT '用户头像',
+    user_profile      VARCHAR(512)           NULL COMMENT '用户简介',
+    user_role         VARCHAR(256) DEFAULT 'user'            NOT NULL COMMENT '用户角色：user/admin/ban',
+    edit_time         DATETIME     DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '编辑时间',
+    create_time       DATETIME     DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '创建时间',
+    update_time       DATETIME     DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    is_delete         TINYINT      DEFAULT 0                 NOT NULL COMMENT '是否删除',
+    vip_expire_time   DATETIME     NULL COMMENT '会员过期时间',
+    vip_code          VARCHAR(128) NULL COMMENT '会员兑换码',
+    vip_number        BIGINT       NULL COMMENT '会员编号',
+    share_code        VARCHAR(20)  DEFAULT NULL COMMENT '分享码',
+    invite_user       BIGINT       DEFAULT NULL COMMENT '邀请用户 ID',
+    INDEX idx_union_id (union_id)
+) COMMENT '用户' COLLATE = utf8mb4_unicode_ci;
 
 -- 题库表
-create table if not exists question_bank
+CREATE TABLE IF NOT EXISTS question_bank
 (
-    id          bigint auto_increment comment 'id' primary key,
-    title       varchar(256)                       null comment '标题',
-    description text                               null comment '描述',
-    picture     varchar(2048)                      null comment '图片',
-    userId      bigint                             not null comment '创建用户 id',
-    editTime    datetime default CURRENT_TIMESTAMP not null comment '编辑时间',
-    createTime  datetime default CURRENT_TIMESTAMP not null comment '创建时间',
-    updateTime  datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
-    isDelete    tinyint  default 0                 not null comment '是否删除',
-    reviewStatus  int      default 0  not null comment '状态：0-待审核, 1-通过, 2-拒绝',
-    reviewMessage varchar(512)        null comment '审核信息',
-    reviewerId    bigint              null comment '审核人 id',
-    reviewTime    datetime            null comment '审核时间',
-    priority  int  default 0  not null comment '优先级',
-    viewNum  int  default 0  not null comment '浏览量',
-    index idx_title (title)
-) comment '题库' collate = utf8mb4_unicode_ci;
+    id               BIGINT AUTO_INCREMENT COMMENT 'ID' PRIMARY KEY,
+    title            VARCHAR(256)                       NULL COMMENT '标题',
+    description      TEXT                               NULL COMMENT '描述',
+    picture          VARCHAR(2048)                      NULL COMMENT '图片',
+    user_id          BIGINT                             NOT NULL COMMENT '创建用户 ID',
+    edit_time        DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '编辑时间',
+    create_time      DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '创建时间',
+    update_time      DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    is_delete        TINYINT  DEFAULT 0                 NOT NULL COMMENT '是否删除',
+    review_status    INT       DEFAULT 0  NOT NULL COMMENT '状态：0-待审核, 1-通过, 2-拒绝',
+    review_message   VARCHAR(512)        NULL COMMENT '审核信息',
+    reviewer_id      BIGINT              NULL COMMENT '审核人 ID',
+    review_time      DATETIME            NULL COMMENT '审核时间',
+    priority         INT  DEFAULT 0  NOT NULL COMMENT '优先级',
+    view_num         INT  DEFAULT 0  NOT NULL COMMENT '浏览量',
+    INDEX idx_title (title)
+) COMMENT '题库' COLLATE = utf8mb4_unicode_ci;
 
 -- 题目表
-create table if not exists question
+CREATE TABLE IF NOT EXISTS question
 (
-    id         bigint auto_increment comment 'id' primary key,
-    title      varchar(256)                       null comment '标题',
-    content    text                               null comment '内容',
-    tags       varchar(1024)                      null comment '标签列表(json 数组)',
-    answer     text                               null comment '推荐答案',
-    userId     bigint                             not null comment '创建用户 id',
-    editTime   datetime default CURRENT_TIMESTAMP not null comment '编辑时间',
-    createTime datetime default CURRENT_TIMESTAMP not null comment '创建时间',
-    updateTime datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
-    isDelete   tinyint  default 0                 not null comment '是否删除',
-    reviewStatus  int      default 0  not null comment '状态：0-待审核, 1-通过, 2-拒绝',
-    reviewMessage varchar(512)        null comment '审核信息',
-    reviewerId    bigint              null comment '审核人 id',
-    reviewTime    datetime            null comment '审核时间',
-    viewNum       int      default 0    not null comment '浏览数',
-    thumbNum      int      default 0    not null comment '点赞数',
-    favourNum     int      default 0    not null comment '收藏数',
-    priority  int  default 0  not null comment '优先级',
-    source   varchar(512)  null comment '题目来源',
-    needVip  tinyint  default 0  not null comment '仅会员可见(1 表示仅会员可见)',
-    index idx_title (title),
-    index idx_userId (userId)
-) comment '题目' collate = utf8mb4_unicode_ci;
+    id               BIGINT AUTO_INCREMENT COMMENT 'ID' PRIMARY KEY,
+    title            VARCHAR(256)                       NULL COMMENT '标题',
+    content          TEXT                               NULL COMMENT '内容',
+    tags             VARCHAR(1024)                      NULL COMMENT '标签列表(JSON 数组)',
+    answer           TEXT                               NULL COMMENT '推荐答案',
+    user_id          BIGINT                             NOT NULL COMMENT '创建用户 ID',
+    edit_time        DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '编辑时间',
+    create_time      DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '创建时间',
+    update_time      DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    is_delete        TINYINT  DEFAULT 0                 NOT NULL COMMENT '是否删除',
+    review_status    INT       DEFAULT 0  NOT NULL COMMENT '状态：0-待审核, 1-通过, 2-拒绝',
+    review_message   VARCHAR(512)        NULL COMMENT '审核信息',
+    reviewer_id      BIGINT              NULL COMMENT '审核人 ID',
+    review_time      DATETIME            NULL COMMENT '审核时间',
+    view_num         INT      DEFAULT 0    NOT NULL COMMENT '浏览数',
+    thumb_num        INT      DEFAULT 0    NOT NULL COMMENT '点赞数',
+    favour_num       INT      DEFAULT 0    NOT NULL COMMENT '收藏数',
+    priority         INT  DEFAULT 0  NOT NULL COMMENT '优先级',
+    source           VARCHAR(512)  NULL COMMENT '题目来源',
+    need_vip         TINYINT  DEFAULT 0  NOT NULL COMMENT '仅会员可见(1 表示仅会员可见)',
+    INDEX idx_title (title),
+    INDEX idx_user_id (user_id)
+) COMMENT '题目' COLLATE = utf8mb4_unicode_ci;
 
 -- 题库题目表(硬删除)
-create table if not exists question_bank_question
+CREATE TABLE IF NOT EXISTS question_bank_question
 (
-    id             bigint auto_increment comment 'id' primary key,
-    questionBankId bigint                             not null comment '题库 id',
-    questionId     bigint                             not null comment '题目 id',
-    userId         bigint                             not null comment '创建用户 id',
-    createTime     datetime default CURRENT_TIMESTAMP not null comment '创建时间',
-    updateTime     datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
-    questionOrder  int  default 0  not null comment '题目顺序(题号)',
-    UNIQUE (questionBankId, questionId)
-) comment '题库题目' collate = utf8mb4_unicode_ci;
-
-
-
+    id               BIGINT AUTO_INCREMENT COMMENT 'ID' PRIMARY KEY,
+    question_bank_id BIGINT                             NOT NULL COMMENT '题库 ID',
+    question_id      BIGINT                             NOT NULL COMMENT '题目 ID',
+    user_id          BIGINT                             NOT NULL COMMENT '创建用户 ID',
+    create_time      DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '创建时间',
+    update_time      DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    question_order   INT  DEFAULT 0  NOT NULL COMMENT '题目顺序(题号)',
+    UNIQUE (question_bank_id, question_id)
+) COMMENT '题库题目' COLLATE = utf8mb4_unicode_ci;

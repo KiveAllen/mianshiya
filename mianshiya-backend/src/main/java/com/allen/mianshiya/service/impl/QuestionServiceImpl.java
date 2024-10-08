@@ -9,7 +9,6 @@ import com.allen.mianshiya.model.dto.question.QuestionQueryRequest;
 import com.allen.mianshiya.model.entity.Question;
 import com.allen.mianshiya.model.vo.QuestionVO;
 import com.allen.mianshiya.service.QuestionService;
-import com.allen.mianshiya.service.UserService;
 import com.allen.mianshiya.utils.SqlUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -19,8 +18,6 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,9 +27,6 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> implements QuestionService {
-
-    @Resource
-    private UserService userService;
 
     /**
      * 校验数据
@@ -102,29 +96,53 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
      * 获取题库题目封装
      *
      * @param question 问题类
-     * @param request  请求
      * @return 问题VO
      */
     @Override
-    public QuestionVO getQuestionVO(Question question, HttpServletRequest request) {
+    public QuestionVO getQuestionVO(Question question) {
         // 对象转封装类
         return QuestionVO.objToVo(question);
     }
 
     /**
+     * 分页查询题目
+     *
+     * @param questionQueryRequest 查询条件
+     * @return 分页结果
+     */
+    @Override
+    public Page<Question> getQuestionPage(QuestionQueryRequest questionQueryRequest) {
+        long current = questionQueryRequest.getCurrent();
+        long size = questionQueryRequest.getPageSize();
+        // 查询数据库
+        return this.page(new Page<>(current, size), this.getQueryWrapper(questionQueryRequest));
+    }
+
+    /**
      * 分页获取题库题目封装
      *
-     * @param questionPage 分页
-     * @param request      请求
+     * @param questionQueryRequest 查询条件
      * @return VO分页
      */
     @Override
-    public Page<QuestionVO> getQuestionVOPage(Page<Question> questionPage, HttpServletRequest request) {
+    public Page<QuestionVO> getQuestionVOPage(QuestionQueryRequest questionQueryRequest) {
+        long current = questionQueryRequest.getCurrent();
+        long size = questionQueryRequest.getPageSize();
+
+        // 限制爬虫
+        ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
+
+        // 查询数据库
+        Page<Question> questionPage = this.page(new Page<>(current, size),
+                this.getQueryWrapper(questionQueryRequest));
+
+        // 转为 VO 的 page
         List<Question> questionList = questionPage.getRecords();
         Page<QuestionVO> questionVOPage = new Page<>(questionPage.getCurrent(), questionPage.getSize(), questionPage.getTotal());
         if (CollUtil.isEmpty(questionList)) {
             return questionVOPage;
         }
+
         // 对象列表 => 封装对象列表
         List<QuestionVO> questionVOList = questionList.stream().map(QuestionVO::objToVo).collect(Collectors.toList());
         questionVOPage.setRecords(questionVOList);
@@ -179,10 +197,12 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     public Long addQuestion(Question question) {
         // 数据校验
         this.validQuestion(question, true);
+
         boolean result = this.save(question);
 
         // 数据库操作
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+
         return question.getId();
     }
 }

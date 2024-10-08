@@ -7,7 +7,6 @@ import com.allen.mianshiya.common.DeleteRequest;
 import com.allen.mianshiya.common.ErrorCode;
 import com.allen.mianshiya.common.ResultUtils;
 import com.allen.mianshiya.constant.UserConstant;
-import com.allen.mianshiya.exception.BusinessException;
 import com.allen.mianshiya.exception.ThrowUtils;
 import com.allen.mianshiya.model.dto.question.QuestionAddRequest;
 import com.allen.mianshiya.model.dto.question.QuestionQueryRequest;
@@ -39,7 +38,7 @@ public class QuestionController {
     @Resource
     private UserService userService;
 
-    // region 增删改查
+    // region 增删改查 管理员
 
     /**
      * 创建题目
@@ -70,71 +69,46 @@ public class QuestionController {
      * 删除题目
      *
      * @param deleteRequest 数据删除请求
-     * @param request http 请求
      * @return 删除是否成功
      */
     @DeleteMapping("/delete")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Boolean> deleteQuestion(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
+    public BaseResponse<Boolean> deleteQuestion(@RequestBody DeleteRequest deleteRequest) {
         // 检验请求是否存在
-        if (deleteRequest == null || deleteRequest.getId() <= 0) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
+        ThrowUtils.throwIf(deleteRequest == null || deleteRequest.getId() <= 0, ErrorCode.PARAMS_ERROR);
         return ResultUtils.success(questionService.deleteQuestion(deleteRequest.getId()));
     }
 
     /**
      * 更新题目（仅管理员可用）
      *
-     * @param questionUpdateRequest
-     * @return
+     * @param questionUpdateRequest 更新条件
+     * @return 是否更新成功
      */
     @PutMapping("/update")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> updateQuestion(@RequestBody QuestionUpdateRequest questionUpdateRequest) {
-        if (questionUpdateRequest == null || questionUpdateRequest.getId() <= 0) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
+        ThrowUtils.throwIf(questionUpdateRequest == null || questionUpdateRequest.getId() <= 0, ErrorCode.PARAMS_ERROR);
         Question question = new Question();
         BeanUtils.copyProperties(questionUpdateRequest, question);
         return ResultUtils.success(questionService.updateQuestion(question));
     }
 
     /**
-     * 根据 id 获取题目（封装类）
+     * 根据 id 获取题目
      *
-     * @param id
-     * @return
+     * @param id 题目id
+     * @return Question
      */
-    @GetMapping("/get/vo")
-    public BaseResponse<QuestionVO> getQuestionVOById(long id, HttpServletRequest request) {
+    @GetMapping("/get")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Question> getQuestionById(@RequestParam long id) {
         ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
         // 查询数据库
         Question question = questionService.getById(id);
         ThrowUtils.throwIf(question == null, ErrorCode.NOT_FOUND_ERROR);
-        // 获取封装类
-        return ResultUtils.success(questionService.getQuestionVO(question, request));
-    }
 
-    /**
-     * 分页获取题目列表（封装类）
-     *
-     * @param questionQueryRequest 查询条件
-     * @param request http 请求
-     * @return Page<QuestionVO>
-     */
-    @PostMapping("/list/page/vo")
-    public BaseResponse<Page<QuestionVO>> listQuestionVOByPage(@RequestBody QuestionQueryRequest questionQueryRequest,
-                                                               HttpServletRequest request) {
-        long current = questionQueryRequest.getCurrent();
-        long size = questionQueryRequest.getPageSize();
-        // 限制爬虫
-        ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
-        // 查询数据库
-        Page<Question> questionPage = questionService.page(new Page<>(current, size),
-                questionService.getQueryWrapper(questionQueryRequest));
-        // 获取封装类
-        return ResultUtils.success(questionService.getQuestionVOPage(questionPage, request));
+        return ResultUtils.success(question);
     }
 
     /**
@@ -146,12 +120,38 @@ public class QuestionController {
     @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Page<Question>> listQuestionByPage(@RequestBody QuestionQueryRequest questionQueryRequest) {
-        long current = questionQueryRequest.getCurrent();
-        long size = questionQueryRequest.getPageSize();
+        return ResultUtils.success(questionService.getQuestionPage(questionQueryRequest));
+    }
+
+    // endregion
+
+    // region 用户
+
+    /**
+     * 根据 id 获取题目（封装类）
+     *
+     * @param id 题目id
+     * @return QuestionVO
+     */
+    @GetMapping("/get/vo")
+    public BaseResponse<QuestionVO> getQuestionVOById(@RequestParam long id) {
+        ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
         // 查询数据库
-        Page<Question> questionPage = questionService.page(new Page<>(current, size),
-                questionService.getQueryWrapper(questionQueryRequest));
-        return ResultUtils.success(questionPage);
+        Question question = questionService.getById(id);
+        ThrowUtils.throwIf(question == null, ErrorCode.NOT_FOUND_ERROR);
+        // 获取封装类
+        return ResultUtils.success(questionService.getQuestionVO(question));
+    }
+
+    /**
+     * 分页获取题目列表（封装类）
+     *
+     * @param questionQueryRequest 查询条件
+     * @return Page<QuestionVO> (题目列表)
+     */
+    @PostMapping("/list/page/vo")
+    public BaseResponse<Page<QuestionVO>> listQuestionVOByPage(@RequestBody QuestionQueryRequest questionQueryRequest) {
+        return ResultUtils.success(questionService.getQuestionVOPage(questionQueryRequest));
     }
 
     // endregion

@@ -57,6 +57,11 @@ public class QuestionVO implements Serializable {
     private UserVO user;
 
     /**
+     * 是否删除
+     */
+    private Integer isDelete;
+
+    /**
      * 封装类转对象
      *
      * @param questionVO 问题VO

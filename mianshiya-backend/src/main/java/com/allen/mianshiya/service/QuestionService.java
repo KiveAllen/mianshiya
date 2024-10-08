@@ -7,8 +7,6 @@ import com.allen.mianshiya.model.dto.question.QuestionQueryRequest;
 import com.allen.mianshiya.model.entity.Question;
 import com.allen.mianshiya.model.vo.QuestionVO;
 
-import javax.servlet.http.HttpServletRequest;
-
 /**
  * 题库题目服务
  *
@@ -35,19 +33,24 @@ public interface QuestionService extends IService<Question> {
      * 获取题库题目封装
      *
      * @param question 问题类
-     * @param request 请求
      * @return 封装类
      */
-    QuestionVO getQuestionVO(Question question, HttpServletRequest request);
+    QuestionVO getQuestionVO(Question question);
+
+    /**
+     * 分页查询题目
+     * @param questionQueryRequest 查询条件
+     * @return 分页结果
+     */
+    Page<Question> getQuestionPage(QuestionQueryRequest questionQueryRequest);
 
     /**
      * 分页获取题库题目封装
      *
-     * @param questionPage 分页
-     * @param request 请求
+     * @param questionQueryRequest 查询条件
      * @return 封装类分页
      */
-    Page<QuestionVO> getQuestionVOPage(Page<Question> questionPage, HttpServletRequest request);
+    Page<QuestionVO> getQuestionVOPage(QuestionQueryRequest questionQueryRequest);
 
     /**
      * 添加题目
@@ -69,5 +72,4 @@ public interface QuestionService extends IService<Question> {
      * @return 删除结果
      */
     Boolean deleteQuestion(Long id);
-
 }
