@@ -34,8 +34,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
      * @param question 要校验的题目对象
      * @param add      对创建的数据进行校验
      */
-    @Override
-    public void validQuestion(Question question, boolean add) {
+    private void validQuestion(Question question, boolean add) {
         ThrowUtils.throwIf(question == null, ErrorCode.PARAMS_ERROR);
         String title = question.getTitle();
         if (add) {
@@ -52,8 +51,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
      * @param questionQueryRequest 请求
      * @return 查询条件
      */
-    @Override
-    public QueryWrapper<Question> getQueryWrapper(QuestionQueryRequest questionQueryRequest) {
+    private QueryWrapper<Question> getQueryWrapper(QuestionQueryRequest questionQueryRequest) {
         QueryWrapper<Question> queryWrapper = new QueryWrapper<>();
         if (questionQueryRequest == null) {
             return queryWrapper;

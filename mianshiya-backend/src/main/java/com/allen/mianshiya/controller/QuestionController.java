@@ -1,6 +1,5 @@
 package com.allen.mianshiya.controller;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.allen.mianshiya.annotation.AuthCheck;
 import com.allen.mianshiya.common.BaseResponse;
 import com.allen.mianshiya.common.DeleteRequest;
@@ -16,6 +15,7 @@ import com.allen.mianshiya.model.entity.User;
 import com.allen.mianshiya.model.vo.QuestionVO;
 import com.allen.mianshiya.service.QuestionService;
 import com.allen.mianshiya.service.UserService;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +25,6 @@ import javax.servlet.http.HttpServletRequest;
 
 /**
  * 题目接口
- *
  */
 @RestController
 @RequestMapping("/question")
@@ -43,8 +42,8 @@ public class QuestionController {
     /**
      * 创建题目
      *
-     * @param questionAddRequest 问题创建请求
-     * @param request http请求
+     * @param questionAddRequest 问题创建参数
+     * @param request            http请求
      * @return 新写入的数据 id
      */
     @PostMapping("/add")
@@ -68,7 +67,7 @@ public class QuestionController {
     /**
      * 删除题目
      *
-     * @param deleteRequest 数据删除请求
+     * @param deleteRequest 数据删除参数
      * @return 删除是否成功
      */
     @DeleteMapping("/delete")
@@ -102,7 +101,7 @@ public class QuestionController {
      */
     @GetMapping("/get")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Question> getQuestionById(@RequestParam long id) {
+    public BaseResponse<Question> getQuestionById(@RequestParam Long id) {
         ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
         // 查询数据库
         Question question = questionService.getById(id);

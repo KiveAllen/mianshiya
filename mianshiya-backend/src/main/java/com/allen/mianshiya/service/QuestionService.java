@@ -1,11 +1,10 @@
 package com.allen.mianshiya.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.allen.mianshiya.model.dto.question.QuestionQueryRequest;
 import com.allen.mianshiya.model.entity.Question;
 import com.allen.mianshiya.model.vo.QuestionVO;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
  * 题库题目服务
@@ -13,22 +12,6 @@ import com.allen.mianshiya.model.vo.QuestionVO;
  */
 public interface QuestionService extends IService<Question> {
 
-    /**
-     * 校验数据
-     *
-     * @param question 问题类
-     * @param add 对创建的数据进行校验
-     */
-    void validQuestion(Question question, boolean add);
-
-    /**
-     * 获取查询条件
-     *
-     * @param questionQueryRequest 查询条件
-     * @return 查询条件
-     */
-    QueryWrapper<Question> getQueryWrapper(QuestionQueryRequest questionQueryRequest);
-    
     /**
      * 获取题库题目封装
      *

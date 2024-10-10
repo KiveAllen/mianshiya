@@ -9,7 +9,6 @@ import com.allen.mianshiya.model.dto.questionBank.QuestionBankQueryRequest;
 import com.allen.mianshiya.model.entity.QuestionBank;
 import com.allen.mianshiya.model.vo.QuestionBankVO;
 import com.allen.mianshiya.service.QuestionBankService;
-import com.allen.mianshiya.service.UserService;
 import com.allen.mianshiya.utils.SqlUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -19,81 +18,181 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 题库题目服务实现
+ * 题库服务实现
  */
 @Service
 @Slf4j
 public class QuestionBankServiceImpl extends ServiceImpl<QuestionBankMapper, QuestionBank> implements QuestionBankService {
 
-    @Resource
-    private UserService userService;
+    /**
+     * 添加题库
+     *
+     * @param questionBank 添加的题库
+     * @return 添加的题库id
+     */
+    @Override
+    public Long addQuestionBank(QuestionBank questionBank) {
+        // 数据校验
+        this.validQuestionBank(questionBank, true);
+
+        // 写入数据库
+        boolean result = this.save(questionBank);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+
+        // 返回新写入的数据 id
+        return questionBank.getId();
+    }
+
+    /**
+     * 删除题库
+     *
+     * @param id 题库id
+     * @return 是否删除成功
+     */
+    @Override
+    public Boolean deleteQuestionBank(long id) {
+        // 判断是否存在
+        QuestionBank oldQuestionBank = this.getById(id);
+        ThrowUtils.throwIf(oldQuestionBank == null, ErrorCode.NOT_FOUND_ERROR);
+
+        // 操作数据库
+        boolean result = this.removeById(id);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        return true;
+    }
+
+    /**
+     * 更新题库
+     *
+     * @param questionBank 题库
+     * @return 是否修改成功
+     */
+    @Override
+    public Boolean updateQuestionBank(QuestionBank questionBank) {
+        // 数据校验
+        this.validQuestionBank(questionBank, false);
+        // 判断是否存在
+        long id = questionBank.getId();
+        QuestionBank oldQuestionBank = this.getById(id);
+        ThrowUtils.throwIf(oldQuestionBank == null, ErrorCode.NOT_FOUND_ERROR);
+        // 操作数据库
+        boolean result = this.updateById(questionBank);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        return true;
+    }
+
+    /**
+     * 获取题库
+     *
+     * @param id 题库id
+     * @return 题库类
+     */
+    @Override
+    public QuestionBank getQuestionBank(Long id) {
+        // 查询数据库
+        QuestionBank questionBank = this.getById(id);
+        ThrowUtils.throwIf(questionBank == null, ErrorCode.NOT_FOUND_ERROR);
+        // 获取类
+        return questionBank;
+    }
+
+    /**
+     * 分页查询题库
+     *
+     * @param questionBankQueryRequest 查询条件
+     * @return 分页结果
+     */
+    @Override
+    public Page<QuestionBank> listQuestionBankByPage(QuestionBankQueryRequest questionBankQueryRequest) {
+        return this.page(new Page<>(questionBankQueryRequest.getCurrent(), questionBankQueryRequest.getPageSize()),
+                this.getQueryWrapper(questionBankQueryRequest));
+    }
+
+    /**
+     * 获取题库封装
+     *
+     * @param id 题库id
+     * @return 封装类
+     */
+    @Override
+    public QuestionBankVO getQuestionBankVO(Long id) {
+        QuestionBank questionBank = this.getQuestionBank(id);
+        // 获取封装类
+        return QuestionBankVO.objToVo(questionBank);
+    }
+
+    /**
+     * 分页获取题库封装
+     *
+     * @param questionBankQueryRequest 查询条件
+     * @return 封装分页类结果
+     */
+    @Override
+    public Page<QuestionBankVO> getQuestionBankVOPage(QuestionBankQueryRequest questionBankQueryRequest) {
+        Page<QuestionBank> questionBankPage = this.listQuestionBankByPage(questionBankQueryRequest);
+
+        // 创建封装分页类
+        List<QuestionBank> questionBankList = questionBankPage.getRecords();
+        Page<QuestionBankVO> questionBankVOPage = new Page<>(questionBankPage.getCurrent(), questionBankPage.getSize(), questionBankPage.getTotal());
+        if (CollUtil.isEmpty(questionBankList)) {
+            return questionBankVOPage;
+        }
+        // 对象列表 => 封装对象列表
+        List<QuestionBankVO> questionBankVOList = questionBankList.stream().map(QuestionBankVO::objToVo).collect(Collectors.toList());
+        questionBankVOPage.setRecords(questionBankVOList);
+        return questionBankVOPage;
+    }
+
 
     /**
      * 校验数据
      *
-     * @param questionBank
+     * @param questionBank 题库
      * @param add          对创建的数据进行校验
      */
-    @Override
-    public void validQuestionBank(QuestionBank questionBank, boolean add) {
-        ThrowUtils.throwIf(questionBank == null, ErrorCode.PARAMS_ERROR);
-        // todo 从对象中取值
+    private void validQuestionBank(QuestionBank questionBank, boolean add) {
         String title = questionBank.getTitle();
         // 创建数据时，参数不能为空
         if (add) {
-            // todo 补充校验规则
             ThrowUtils.throwIf(StringUtils.isBlank(title), ErrorCode.PARAMS_ERROR);
         }
         // 修改数据时，有参数则校验
-        // todo 补充校验规则
         if (StringUtils.isNotBlank(title)) {
             ThrowUtils.throwIf(title.length() > 80, ErrorCode.PARAMS_ERROR, "标题过长");
         }
     }
 
     /**
-     * 获取查询条件
+     * 获取QueryWrapper
      *
-     * @param questionBankQueryRequest
-     * @return
+     * @param questionBankQueryRequest 查询条件
+     * @return QueryWrapper
      */
-    @Override
-    public QueryWrapper<QuestionBank> getQueryWrapper(QuestionBankQueryRequest questionBankQueryRequest) {
+    private QueryWrapper<QuestionBank> getQueryWrapper(QuestionBankQueryRequest questionBankQueryRequest) {
         QueryWrapper<QuestionBank> queryWrapper = new QueryWrapper<>();
         if (questionBankQueryRequest == null) {
             return queryWrapper;
         }
-        // todo 从对象中取值
         Long id = questionBankQueryRequest.getId();
         Long notId = questionBankQueryRequest.getNotId();
         String title = questionBankQueryRequest.getTitle();
-        String content = questionBankQueryRequest.getContent();
+        String description = questionBankQueryRequest.getDescription();
         String searchText = questionBankQueryRequest.getSearchText();
         String sortField = questionBankQueryRequest.getSortField();
         String sortOrder = questionBankQueryRequest.getSortOrder();
-        List<String> tagList = questionBankQueryRequest.getTags();
         Long userId = questionBankQueryRequest.getUserId();
-        // todo 补充需要的查询条件
         // 从多字段中搜索
         if (StringUtils.isNotBlank(searchText)) {
             // 需要拼接查询条件
-            queryWrapper.and(qw -> qw.like("title", searchText).or().like("content", searchText));
+            queryWrapper.and(qw -> qw.like("title", searchText).or().like("description", searchText));
         }
         // 模糊查询
         queryWrapper.like(StringUtils.isNotBlank(title), "title", title);
-        queryWrapper.like(StringUtils.isNotBlank(content), "content", content);
-        // JSON 数组查询
-        if (CollUtil.isNotEmpty(tagList)) {
-            for (String tag : tagList) {
-                queryWrapper.like("tags", "\"" + tag + "\"");
-            }
-        }
+        queryWrapper.like(StringUtils.isNotBlank(description), "content", description);
         // 精确查询
         queryWrapper.ne(ObjectUtils.isNotEmpty(notId), "id", notId);
         queryWrapper.eq(ObjectUtils.isNotEmpty(id), "id", id);
@@ -103,44 +202,6 @@ public class QuestionBankServiceImpl extends ServiceImpl<QuestionBankMapper, Que
                 sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
                 sortField);
         return queryWrapper;
-    }
-
-    /**
-     * 获取题库题目封装
-     *
-     * @param questionBank
-     * @param request
-     * @return
-     */
-    @Override
-    public QuestionBankVO getQuestionBankVO(QuestionBank questionBank, HttpServletRequest request) {
-        // 对象转封装类
-        QuestionBankVO questionBankVO = QuestionBankVO.objToVo(questionBank);
-
-        return questionBankVO;
-    }
-
-    /**
-     * 分页获取题库题目封装
-     *
-     * @param questionBankPage
-     * @param request
-     * @return
-     */
-    @Override
-    public Page<QuestionBankVO> getQuestionBankVOPage(Page<QuestionBank> questionBankPage, HttpServletRequest request) {
-        List<QuestionBank> questionBankList = questionBankPage.getRecords();
-        Page<QuestionBankVO> questionBankVOPage = new Page<>(questionBankPage.getCurrent(), questionBankPage.getSize(), questionBankPage.getTotal());
-        if (CollUtil.isEmpty(questionBankList)) {
-            return questionBankVOPage;
-        }
-        // 对象列表 => 封装对象列表
-        List<QuestionBankVO> questionBankVOList = questionBankList.stream().map(questionBank -> {
-            return QuestionBankVO.objToVo(questionBank);
-        }).collect(Collectors.toList());
-
-        questionBankVOPage.setRecords(questionBankVOList);
-        return questionBankVOPage;
     }
 
 }

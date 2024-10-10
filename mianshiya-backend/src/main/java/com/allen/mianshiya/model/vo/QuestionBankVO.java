@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 题库题目视图
+ * 题库视图
  *
  */
 @Data
@@ -58,8 +58,8 @@ public class QuestionBankVO implements Serializable {
     /**
      * 封装类转对象
      *
-     * @param questionBankVO
-     * @return
+     * @param questionBankVO 封装类
+     * @return 题库类
      */
     public static QuestionBank voToObj(QuestionBankVO questionBankVO) {
         if (questionBankVO == null) {
@@ -73,8 +73,8 @@ public class QuestionBankVO implements Serializable {
     /**
      * 对象转封装类
      *
-     * @param questionBank
-     * @return
+     * @param questionBank 题库类
+     * @return 封装类
      */
     public static QuestionBankVO objToVo(QuestionBank questionBank) {
         if (questionBank == null) {

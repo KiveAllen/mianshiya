@@ -10,7 +10,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 题库题目视图
+ * 题目视图
  *
  */
 @Data
