@@ -8,11 +8,9 @@ import org.springframework.beans.BeanUtils;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
 /**
  * 题库视图
- *
  */
 @Data
 public class QuestionBankVO implements Serializable {
@@ -28,14 +26,14 @@ public class QuestionBankVO implements Serializable {
     private String title;
 
     /**
-     * 内容
+     * 描述
      */
-    private String content;
+    private String description;
 
     /**
-     * 创建用户 id
+     * 图片
      */
-    private Long userId;
+    private String picture;
 
     /**
      * 创建时间
@@ -48,9 +46,9 @@ public class QuestionBankVO implements Serializable {
     private Date updateTime;
 
     /**
-     * 标签列表
+     * 浏览量
      */
-    private List<String> tagList;
+    private Integer viewNum;
 
     /**
      * 创建用户信息

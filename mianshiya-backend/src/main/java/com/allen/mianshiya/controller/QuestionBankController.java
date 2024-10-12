@@ -48,7 +48,8 @@ public class QuestionBankController {
      */
     @PostMapping("/add")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Long> addQuestionBank(@RequestBody QuestionBankAddRequest questionBankAddRequest, HttpServletRequest request) {
+    public BaseResponse<Long> addQuestionBank(@RequestBody QuestionBankAddRequest questionBankAddRequest,
+                                              HttpServletRequest request) {
         ThrowUtils.throwIf(questionBankAddRequest == null, ErrorCode.PARAMS_ERROR);
 
         QuestionBank questionBank = new QuestionBank();
@@ -66,7 +67,7 @@ public class QuestionBankController {
      * @param deleteRequest 删除题库的id
      * @return 删除成功
      */
-    @PostMapping("/delete")
+    @DeleteMapping("/delete")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> deleteQuestionBank(@RequestBody DeleteRequest deleteRequest) {
         ThrowUtils.throwIf(deleteRequest == null || deleteRequest.getId() <= 0, ErrorCode.PARAMS_ERROR);
@@ -105,7 +106,7 @@ public class QuestionBankController {
     }
 
     /**
-     * 根据 id 获取题库
+     * 根据 id 获取题库（仅管理员可用）
      *
      * @param id 题库id
      * @return 封装类
@@ -125,13 +126,20 @@ public class QuestionBankController {
      * @param questionBankQueryRequest 查询参数
      * @return 封装类
      */
-    @GetMapping("/get/vo")
-    public BaseResponse<QuestionBankVO> getQuestionBankVOById(@RequestParam QuestionBankQueryRequest questionBankQueryRequest) {
+    @PostMapping("/get/vo")
+    public BaseResponse<QuestionBankVO> getQuestionBankVOById(@RequestBody QuestionBankQueryRequest questionBankQueryRequest) {
         Long id = questionBankQueryRequest.getId();
         Boolean needQueryQuestionList = questionBankQueryRequest.getNeedQueryQuestionList();
+        int current = questionBankQueryRequest.getCurrent();
+        int pageSize = questionBankQueryRequest.getPageSize();
         ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
         // 获取封装类
-        return ResultUtils.success(questionBankService.getQuestionBankVO(id, needQueryQuestionList));
+        return ResultUtils.success(questionBankService.getQuestionBankVO(
+                id,
+                needQueryQuestionList,
+                current,
+                pageSize
+        ));
     }
 
     /**

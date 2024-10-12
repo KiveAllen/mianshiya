@@ -8,14 +8,17 @@ import com.allen.mianshiya.constant.UserConstant;
 import com.allen.mianshiya.exception.ThrowUtils;
 import com.allen.mianshiya.model.dto.questionBankQuestion.QuestionBankQuestionAddRequest;
 import com.allen.mianshiya.model.dto.questionBankQuestion.QuestionBankQuestionDeleteRequest;
+import com.allen.mianshiya.model.entity.User;
 import com.allen.mianshiya.service.QuestionBankQuestionService;
+import com.allen.mianshiya.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 /**
- * 题库题目接口
+ * 题库题目联系接口
  */
 @RestController
 @RequestMapping("/questionBankQuestion")
@@ -25,35 +28,43 @@ public class QuestionBankQuestionController {
     @Resource
     private QuestionBankQuestionService questionBankQuestionService;
 
+    @Resource
+    private UserService userService;
+
     /**
-     * 添加题目
+     * 添加题库题目联系
      *
-     * @param addRequest 添加题目
+     * @param addRequest 添加题库题目联系
      * @return Boolean
      */
     @PostMapping("/add")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Boolean> addQuestionBankQuestion(QuestionBankQuestionAddRequest addRequest) {
+    public BaseResponse<Boolean> addQuestionBankQuestion(@RequestBody QuestionBankQuestionAddRequest addRequest,
+                                                         HttpServletRequest request) {
         // 校验
         ThrowUtils.throwIf(addRequest == null, ErrorCode.PARAMS_ERROR);
         Long questionBankId = addRequest.getQuestionBankId();
         Long questionId = addRequest.getQuestionId();
         ThrowUtils.throwIf(questionBankId == null || questionId == null, ErrorCode.PARAMS_ERROR);
+
+        // 用户
+        User loginUser = userService.getLoginUser(request);
+
         // 调用服务
         return ResultUtils.success(questionBankQuestionService.addQuestionBankQuestion(
-                addRequest.getQuestionBankId(), addRequest.getQuestionId()
+                addRequest.getQuestionBankId(), addRequest.getQuestionId(), loginUser.getId()
         ));
     }
 
     /**
-     * 删除题目
+     * 删除题库题目联系
      *
-     * @param deleteRequest 删除题目请求
+     * @param deleteRequest 删除题库题目联系请求
      * @return Boolean
      */
     @DeleteMapping("/delete")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Boolean> deleteQuestionBankQuestion(@RequestParam QuestionBankQuestionDeleteRequest deleteRequest) {
+    public BaseResponse<Boolean> deleteQuestionBankQuestion(@RequestBody QuestionBankQuestionDeleteRequest deleteRequest) {
         // 校验
         ThrowUtils.throwIf(deleteRequest == null, ErrorCode.PARAMS_ERROR);
         Long questionBankId = deleteRequest.getQuestionBankId();

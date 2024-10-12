@@ -55,13 +55,23 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
      * @return 是否成功
      */
     @Override
-    public Boolean addQuestionBankQuestion(Long questionBankId, Long questionId) {
+    public Boolean addQuestionBankQuestion(Long questionBankId, Long questionId, Long userId) {
         // 校验
         validQuestionBankQuestion(questionBankId, questionId);
+
+        // 判断关联记录是否存在
+        boolean exist = questionBankQuestionMapper.exists(
+                Wrappers.lambdaQuery(QuestionBankQuestion.class)
+                        .eq(questionBankId != null, QuestionBankQuestion::getQuestionBankId, questionBankId)
+                        .eq(questionId != null, QuestionBankQuestion::getQuestionId, questionId)
+        );
+        ThrowUtils.throwIf(exist, ErrorCode.OPERATION_ERROR, "关联记录已存在");
+
         // 添加关联记录
         QuestionBankQuestion questionBankQuestion = new QuestionBankQuestion();
         questionBankQuestion.setQuestionBankId(questionBankId);
         questionBankQuestion.setQuestionId(questionId);
+        questionBankQuestion.setUserId(userId);
         boolean insertSuccess = questionBankQuestionMapper.insert(questionBankQuestion) > 0;
         // 判断是否添加成功
         ThrowUtils.throwIf(!insertSuccess, ErrorCode.OPERATION_ERROR);
@@ -76,7 +86,7 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
      * @return 是否成功
      */
     @Override
-    public Boolean deleteQuestionBankQuestion(Long questionBankId, Long questionId, Boolean isThrowException) {
+    public Boolean deleteQuestionBankQuestion(Long questionBankId, Long questionId, Boolean throwEx) {
 
         boolean deleteSuccess = questionBankQuestionMapper.delete(
                 Wrappers.lambdaQuery(QuestionBankQuestion.class)
@@ -84,7 +94,7 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
                         .eq(questionId != null, QuestionBankQuestion::getQuestionId, questionId)
         ) > 0;
 
-        ThrowUtils.throwIf(isThrowException && !deleteSuccess, ErrorCode.OPERATION_ERROR);
+        ThrowUtils.throwIf(throwEx && !deleteSuccess, ErrorCode.OPERATION_ERROR);
         return true;
     }
 

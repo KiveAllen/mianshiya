@@ -123,7 +123,9 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
         QuestionVO questionVO = QuestionVO.objToVo(question);
         UserVO userVO = userService.getUserVOById(question.getUserId());
-        questionVO.setUser(userVO);
+        if (userVO != null) {
+            questionVO.setUser(userVO);
+        }
 
         // 对象转封装类
         return questionVO;
@@ -142,15 +144,11 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         QueryWrapper<Question> queryWrapper = this.getQueryWrapper(questionQueryRequest);
 
         Long questionBankId = questionQueryRequest.getQuestionBankId();
-
         if (questionBankId != null) {
-            List<Question> questionList = questionBankQuestionService
-                    .getQuestionListByQuestionBankId(questionBankId);
+            List<Question> questionList = questionBankQuestionService.getQuestionListByQuestionBankId(questionBankId);
             if (CollUtil.isNotEmpty(questionList)) {
                 // 取出题目 id 集合
-                Set<Long> questionIdSet = questionList.stream()
-                        .map(Question::getId)
-                        .collect(Collectors.toSet());
+                Set<Long> questionIdSet = questionList.stream().map(Question::getId).collect(Collectors.toSet());
                 // 复用原有题目表的查询条件
                 queryWrapper.in("id", questionIdSet);
             }
@@ -177,7 +175,10 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
         // 转为 VO 的 page
         List<Question> questionList = questionPage.getRecords();
-        Page<QuestionVO> questionVOPage = new Page<>(questionPage.getCurrent(), questionPage.getSize(), questionPage.getTotal());
+        Page<QuestionVO> questionVOPage = new Page<>(
+                questionPage.getCurrent(),
+                questionPage.getSize(),
+                questionPage.getTotal());
         if (CollUtil.isEmpty(questionList)) {
             return questionVOPage;
         }
@@ -187,13 +188,14 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         Map<Long, UserVO> userVOByIds = userService.getUserVOMapByIds(userIds);
 
         // 对象列表 => 封装对象列表（在内存中进行分组）
-        List<QuestionVO> questionVOList = questionList.stream().map(
-                question -> {
-                    QuestionVO questionVO = QuestionVO.objToVo(question);
-                    questionVO.setUser(userVOByIds.get(question.getUserId()));
-                    return questionVO;
-                }
-        ).collect(Collectors.toList());
+        List<QuestionVO> questionVOList = questionList.stream().map(question -> {
+            QuestionVO questionVO = QuestionVO.objToVo(question);
+            UserVO userVO = userVOByIds.get(question.getUserId());
+            if (userVO != null) {
+                questionVO.setUser(userVO);
+            }
+            return questionVO;
+        }).collect(Collectors.toList());
 
         questionVOPage.setRecords(questionVOList);
         return questionVOPage;
@@ -217,7 +219,8 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
 
         // 删除题库题目联系
-        Boolean deleteQuestionBankQuestion = questionBankQuestionService.deleteQuestionBankQuestion(null, id, false);
+        Boolean deleteQuestionBankQuestion =
+                questionBankQuestionService.deleteQuestionBankQuestion(null, id, false);
         ThrowUtils.throwIf(!deleteQuestionBankQuestion, ErrorCode.OPERATION_ERROR);
 
         return true;

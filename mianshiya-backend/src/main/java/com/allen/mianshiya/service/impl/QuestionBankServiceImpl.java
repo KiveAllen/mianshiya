@@ -3,6 +3,7 @@ package com.allen.mianshiya.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import com.allen.mianshiya.common.ErrorCode;
 import com.allen.mianshiya.constant.CommonConstant;
+import com.allen.mianshiya.constant.QuestionConstant;
 import com.allen.mianshiya.exception.BusinessException;
 import com.allen.mianshiya.exception.ThrowUtils;
 import com.allen.mianshiya.mapper.QuestionBankMapper;
@@ -11,11 +12,14 @@ import com.allen.mianshiya.model.dto.questionBank.QuestionBankQueryRequest;
 import com.allen.mianshiya.model.entity.Question;
 import com.allen.mianshiya.model.entity.QuestionBank;
 import com.allen.mianshiya.model.vo.QuestionBankVO;
+import com.allen.mianshiya.model.vo.UserVO;
 import com.allen.mianshiya.service.QuestionBankQuestionService;
 import com.allen.mianshiya.service.QuestionBankService;
 import com.allen.mianshiya.service.QuestionService;
+import com.allen.mianshiya.service.UserService;
 import com.allen.mianshiya.utils.SqlUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -41,6 +46,9 @@ public class QuestionBankServiceImpl extends ServiceImpl<QuestionBankMapper, Que
     @Resource
     private QuestionBankQuestionService questionBankQuestionService;
 
+    @Resource
+    private UserService userService;
+
     /**
      * 添加题库
      *
@@ -51,6 +59,10 @@ public class QuestionBankServiceImpl extends ServiceImpl<QuestionBankMapper, Que
     public Long addQuestionBank(QuestionBank questionBank) {
         // 数据校验
         this.validQuestionBank(questionBank, true);
+
+        if (StringUtils.isBlank(questionBank.getPicture())) {
+            questionBank.setPicture(QuestionConstant.DEFAULT_PICTURE);
+        }
 
         // 写入数据库
         boolean result = this.save(questionBank);
@@ -71,14 +83,15 @@ public class QuestionBankServiceImpl extends ServiceImpl<QuestionBankMapper, Que
     public Boolean deleteQuestionBank(long id) {
         // 判断是否存在
         QuestionBank oldQuestionBank = this.getById(id);
-        ThrowUtils.throwIf(oldQuestionBank == null, ErrorCode.NOT_FOUND_ERROR);
+        ThrowUtils.throwIf(oldQuestionBank == null, ErrorCode.NOT_FOUND_ERROR, "此题库不存在");
 
         // 操作数据库
         boolean result = this.removeById(id);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
 
         // 删除题库题目联系
-        Boolean deleteQuestionBankQuestion = questionBankQuestionService.deleteQuestionBankQuestion(id, null, false);
+        Boolean deleteQuestionBankQuestion =
+                questionBankQuestionService.deleteQuestionBankQuestion(id, null, false);
         ThrowUtils.throwIf(!deleteQuestionBankQuestion, ErrorCode.OPERATION_ERROR);
 
         return true;
@@ -98,10 +111,28 @@ public class QuestionBankServiceImpl extends ServiceImpl<QuestionBankMapper, Que
         long id = questionBank.getId();
         QuestionBank oldQuestionBank = this.getById(id);
         ThrowUtils.throwIf(oldQuestionBank == null, ErrorCode.NOT_FOUND_ERROR);
+
+        if (questionBank.getPicture() != null && StringUtils.isBlank(questionBank.getPicture())) {
+            questionBank.setPicture(QuestionConstant.DEFAULT_PICTURE);
+        }
+
         // 操作数据库
         boolean result = this.updateById(questionBank);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return true;
+    }
+
+    /**
+     * 分页查询题库
+     *
+     * @param questionBankQueryRequest 查询条件
+     * @return 分页结果
+     */
+    @Override
+    public Page<QuestionBank> listQuestionBankByPage(QuestionBankQueryRequest questionBankQueryRequest) {
+        return this.page(new Page<>(questionBankQueryRequest.getCurrent(),
+                        questionBankQueryRequest.getPageSize()),
+                this.getQueryWrapper(questionBankQueryRequest));
     }
 
     /**
@@ -120,32 +151,27 @@ public class QuestionBankServiceImpl extends ServiceImpl<QuestionBankMapper, Que
     }
 
     /**
-     * 分页查询题库
-     *
-     * @param questionBankQueryRequest 查询条件
-     * @return 分页结果
-     */
-    @Override
-    public Page<QuestionBank> listQuestionBankByPage(QuestionBankQueryRequest questionBankQueryRequest) {
-        return this.page(new Page<>(questionBankQueryRequest.getCurrent(), questionBankQueryRequest.getPageSize()),
-                this.getQueryWrapper(questionBankQueryRequest));
-    }
-
-    /**
      * 获取题库封装
      *
      * @param id 题库id
      * @return 封装类
      */
     @Override
-    public QuestionBankVO getQuestionBankVO(Long id, Boolean needQueryQuestionList) {
+    public QuestionBankVO getQuestionBankVO(Long id, Boolean needQueryQuestionList, int current, int pageSize) {
         QuestionBank questionBank = this.getQuestionBank(id);
         // 获取封装类
         QuestionBankVO questionBankVO = QuestionBankVO.objToVo(questionBank);
 
+        UserVO userVO = userService.getUserVOById(questionBank.getUserId());
+        if (userVO != null) {
+            questionBankVO.setUser(userVO);
+        }
+
         if (needQueryQuestionList) {
             QuestionQueryRequest questionQueryRequest = new QuestionQueryRequest();
             questionQueryRequest.setQuestionBankId(id);
+            questionQueryRequest.setCurrent(current);
+            questionQueryRequest.setPageSize(pageSize);
             Page<Question> questionPage = questionService.getQuestionPage(questionQueryRequest);
             questionBankVO.setQuestionPage(questionPage);
         }
@@ -165,13 +191,29 @@ public class QuestionBankServiceImpl extends ServiceImpl<QuestionBankMapper, Que
 
         // 创建封装分页类
         List<QuestionBank> questionBankList = questionBankPage.getRecords();
-        Page<QuestionBankVO> questionBankVOPage = new Page<>(questionBankPage.getCurrent(), questionBankPage.getSize(), questionBankPage.getTotal());
+        Page<QuestionBankVO> questionBankVOPage = new Page<>(
+                questionBankPage.getCurrent(),
+                questionBankPage.getSize(),
+                questionBankPage.getTotal());
         if (CollUtil.isEmpty(questionBankList)) {
             return questionBankVOPage;
         }
 
+        List<Long> userIds = questionBankList.stream().map(QuestionBank::getUserId).collect(Collectors.toList());
+        Map<Long, UserVO> userVOMap = userService.getUserVOMapByIds(userIds);
+
         // 对象列表 => 封装对象列表
-        List<QuestionBankVO> questionBankVOList = questionBankList.stream().map(QuestionBankVO::objToVo).collect(Collectors.toList());
+        List<QuestionBankVO> questionBankVOList =
+                questionBankList.stream().map(
+                        questionBank -> {
+                            QuestionBankVO questionBankVO = QuestionBankVO.objToVo(questionBank);
+                            UserVO userVO = userVOMap.get(questionBank.getUserId());
+                            if (userVO != null) {
+                                questionBankVO.setUser(userVO);
+                            }
+                            return questionBankVO;
+                        }
+                ).collect(Collectors.toList());
         questionBankVOPage.setRecords(questionBankVOList);
         return questionBankVOPage;
     }
@@ -188,6 +230,9 @@ public class QuestionBankServiceImpl extends ServiceImpl<QuestionBankMapper, Que
         // 创建数据时，参数不能为空
         if (add) {
             ThrowUtils.throwIf(StringUtils.isBlank(title), ErrorCode.PARAMS_ERROR);
+            // 不能创建相同标题的题库
+            long count = this.count(Wrappers.lambdaQuery(QuestionBank.class).eq(QuestionBank::getTitle, title));
+            ThrowUtils.throwIf(count > 0, ErrorCode.PARAMS_ERROR, "已存在相同标题的题库");
         }
         // 修改数据时，有参数则校验
         if (StringUtils.isNotBlank(title)) {
@@ -221,15 +266,13 @@ public class QuestionBankServiceImpl extends ServiceImpl<QuestionBankMapper, Que
         }
         // 模糊查询
         queryWrapper.like(StringUtils.isNotBlank(title), "title", title);
-        queryWrapper.like(StringUtils.isNotBlank(description), "content", description);
+        queryWrapper.like(StringUtils.isNotBlank(description), "description", description);
         // 精确查询
         queryWrapper.ne(ObjectUtils.isNotEmpty(notId), "id", notId);
         queryWrapper.eq(ObjectUtils.isNotEmpty(id), "id", id);
         queryWrapper.eq(ObjectUtils.isNotEmpty(userId), "user_id", userId);
         // 排序规则
-        queryWrapper.orderBy(SqlUtils.validSortField(sortField),
-                sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
-                sortField);
+        queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC), sortField);
         return queryWrapper;
     }
 

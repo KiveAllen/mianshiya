@@ -24,7 +24,7 @@ public interface QuestionBankQuestionService extends IService<QuestionBankQuesti
      * @param questionId 题目id
      * @return 是否成功
      */
-    Boolean addQuestionBankQuestion(Long questionBankId, Long questionId);
+    Boolean addQuestionBankQuestion(Long questionBankId, Long questionId, Long userId);
 
     /**
      * 删除关联
@@ -32,5 +32,5 @@ public interface QuestionBankQuestionService extends IService<QuestionBankQuesti
      * @param questionId 题目id
      * @return 是否成功
      */
-    Boolean deleteQuestionBankQuestion(Long questionBankId, Long questionId, Boolean isThrowException);
+    Boolean deleteQuestionBankQuestion(Long questionBankId, Long questionId, Boolean throwEx);
 }

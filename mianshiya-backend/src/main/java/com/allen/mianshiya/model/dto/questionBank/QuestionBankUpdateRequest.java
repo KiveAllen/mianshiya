@@ -3,34 +3,28 @@ package com.allen.mianshiya.model.dto.questionBank;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * 更新题库题目请求
- *
  */
 @Data
 public class QuestionBankUpdateRequest implements Serializable {
 
+    private static final long serialVersionUID = 1L;
     /**
      * id
      */
     private Long id;
-
     /**
      * 标题
      */
     private String title;
-
     /**
-     * 内容
+     * 描述
      */
-    private String content;
-
+    private String description;
     /**
-     * 标签列表
+     * 图片
      */
-    private List<String> tags;
-
-    private static final long serialVersionUID = 1L;
+    private String picture;
 }

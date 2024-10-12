@@ -52,9 +52,12 @@ public interface QuestionBankService extends IService<QuestionBank> {
      * 获取题库封装
      *
      * @param id 题库id
+     * @param needQueryQuestionList 是否需要查询题目列表
+     * @param current 当前页
+     * @param pageSize 每页大小
      * @return 封装类
      */
-    QuestionBankVO getQuestionBankVO(Long id ,Boolean needQueryQuestionList);
+    QuestionBankVO getQuestionBankVO(Long id ,Boolean needQueryQuestionList, int current, int pageSize);
 
     /**
      * 分页获取题库封装
