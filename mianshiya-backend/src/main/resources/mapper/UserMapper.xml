@@ -5,32 +5,32 @@
 <mapper namespace="com.allen.mianshiya.mapper.UserMapper">
 
     <resultMap id="BaseResultMap" type="com.allen.mianshiya.model.entity.User">
-            <id property="id" column="id" jdbcType="BIGINT"/>
-            <result property="userAccount" column="userAccount" jdbcType="VARCHAR"/>
-            <result property="userPassword" column="userPassword" jdbcType="VARCHAR"/>
-            <result property="unionId" column="unionId" jdbcType="VARCHAR"/>
-            <result property="mpOpenId" column="mpOpenId" jdbcType="VARCHAR"/>
-            <result property="userName" column="userName" jdbcType="VARCHAR"/>
-            <result property="userAvatar" column="userAvatar" jdbcType="VARCHAR"/>
-            <result property="userProfile" column="userProfile" jdbcType="VARCHAR"/>
-            <result property="userRole" column="userRole" jdbcType="VARCHAR"/>
-            <result property="editTime" column="editTime" jdbcType="TIMESTAMP"/>
-            <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
-            <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
-            <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
-            <result property="vipExpireTime" column="vipExpireTime" jdbcType="TIMESTAMP"/>
-            <result property="vipCode" column="vipCode" jdbcType="VARCHAR"/>
-            <result property="vipNumber" column="vipNumber" jdbcType="BIGINT"/>
-            <result property="shareCode" column="shareCode" jdbcType="VARCHAR"/>
-            <result property="inviteUser" column="inviteUser" jdbcType="BIGINT"/>
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="userAccount" column="user_account" jdbcType="VARCHAR"/>
+        <result property="userPassword" column="user_password" jdbcType="VARCHAR"/>
+        <result property="unionId" column="union_id" jdbcType="VARCHAR"/>
+        <result property="mpOpenId" column="mp_open_id" jdbcType="VARCHAR"/>
+        <result property="userName" column="user_name" jdbcType="VARCHAR"/>
+        <result property="userAvatar" column="user_avatar" jdbcType="VARCHAR"/>
+        <result property="userProfile" column="user_profile" jdbcType="VARCHAR"/>
+        <result property="userRole" column="user_role" jdbcType="VARCHAR"/>
+        <result property="editTime" column="edit_time" jdbcType="TIMESTAMP"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="isDelete" column="is_delete" jdbcType="TINYINT"/>
+        <result property="vipExpireTime" column="vip_expire_time" jdbcType="TIMESTAMP"/>
+        <result property="vipCode" column="vip_code" jdbcType="VARCHAR"/>
+        <result property="vipNumber" column="vip_number" jdbcType="BIGINT"/>
+        <result property="shareCode" column="share_code" jdbcType="VARCHAR"/>
+        <result property="inviteUser" column="invite_user" jdbcType="BIGINT"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,userAccount,userPassword,
-        unionId,mpOpenId,userName,
-        userAvatar,userProfile,userRole,
-        editTime,createTime,updateTime,
-        isDelete,vipExpireTime,vipCode,
-        vipNumber,shareCode,inviteUser
+        id,user_account,user_password,
+        union_id,mp_open_id,user_name,
+        user_avatar,user_profile,user_role,
+        edit_time,create_time,update_time,
+        is_delete,vip_expire_time,vip_code,
+        vip_number,share_code,invite_user
     </sql>
 </mapper>

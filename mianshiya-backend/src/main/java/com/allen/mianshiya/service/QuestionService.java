@@ -8,24 +8,48 @@ import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
  * 题库题目服务
- *
  */
 public interface QuestionService extends IService<Question> {
 
     /**
-     * 获取题库题目封装
+     * 添加题目
      *
      * @param question 问题类
-     * @return 封装类
+     * @return 添加结果
      */
-    QuestionVO getQuestionVO(Question question);
+    Long addQuestion(Question question);
+
+    /**
+     * 删除题目
+     *
+     * @param id id
+     * @return 删除结果
+     */
+    Boolean deleteQuestion(Long id);
+
+    /**
+     * 更新题目
+     *
+     * @param question 问题类
+     * @return 更新结果
+     */
+    Boolean updateQuestion(Question question);
 
     /**
      * 分页查询题目
+     *
      * @param questionQueryRequest 查询条件
      * @return 分页结果
      */
     Page<Question> getQuestionPage(QuestionQueryRequest questionQueryRequest);
+
+    /**
+     * 获取题库题目封装
+     *
+     * @param id 问题id
+     * @return 封装类
+     */
+    QuestionVO getQuestionVO(Long id);
 
     /**
      * 分页获取题库题目封装
@@ -35,24 +59,4 @@ public interface QuestionService extends IService<Question> {
      */
     Page<QuestionVO> getQuestionVOPage(QuestionQueryRequest questionQueryRequest);
 
-    /**
-     * 添加题目
-     * @param question 问题类
-     * @return 添加结果
-     */
-    Long addQuestion(Question question);
-
-    /**
-     * 更新题目
-     * @param question 问题类
-     * @return 更新结果
-     */
-    Boolean updateQuestion(Question question);
-
-    /**
-     * 删除题目
-     * @param id id
-     * @return 删除结果
-     */
-    Boolean deleteQuestion(Long id);
 }

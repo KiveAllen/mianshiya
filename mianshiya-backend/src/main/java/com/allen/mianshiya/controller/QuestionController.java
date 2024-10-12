@@ -1,5 +1,6 @@
 package com.allen.mianshiya.controller;
 
+import cn.hutool.json.JSONUtil;
 import com.allen.mianshiya.annotation.AuthCheck;
 import com.allen.mianshiya.common.BaseResponse;
 import com.allen.mianshiya.common.DeleteRequest;
@@ -40,7 +41,7 @@ public class QuestionController {
     // region 增删改查 管理员
 
     /**
-     * 创建题目
+     * 创建题目（仅管理员可用）
      *
      * @param questionAddRequest 问题创建参数
      * @param request            http请求
@@ -54,6 +55,7 @@ public class QuestionController {
 
         // 拷贝属性
         Question question = new Question();
+        question.setTags(JSONUtil.toJsonStr(questionAddRequest.getTags()));
         BeanUtils.copyProperties(questionAddRequest, question);
 
         // 获取当前用户
@@ -65,7 +67,7 @@ public class QuestionController {
     }
 
     /**
-     * 删除题目
+     * 删除题目（仅管理员可用）
      *
      * @param deleteRequest 数据删除参数
      * @return 删除是否成功
@@ -89,12 +91,13 @@ public class QuestionController {
     public BaseResponse<Boolean> updateQuestion(@RequestBody QuestionUpdateRequest questionUpdateRequest) {
         ThrowUtils.throwIf(questionUpdateRequest == null || questionUpdateRequest.getId() <= 0, ErrorCode.PARAMS_ERROR);
         Question question = new Question();
+        question.setTags(JSONUtil.toJsonStr(questionUpdateRequest.getTags()));
         BeanUtils.copyProperties(questionUpdateRequest, question);
         return ResultUtils.success(questionService.updateQuestion(question));
     }
 
     /**
-     * 根据 id 获取题目
+     * 根据 id 获取题目（仅管理员可用）
      *
      * @param id 题目id
      * @return Question
@@ -135,11 +138,9 @@ public class QuestionController {
     @GetMapping("/get/vo")
     public BaseResponse<QuestionVO> getQuestionVOById(@RequestParam long id) {
         ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
-        // 查询数据库
-        Question question = questionService.getById(id);
-        ThrowUtils.throwIf(question == null, ErrorCode.NOT_FOUND_ERROR);
+
         // 获取封装类
-        return ResultUtils.success(questionService.getQuestionVO(question));
+        return ResultUtils.success(questionService.getQuestionVO(id));
     }
 
     /**
@@ -150,6 +151,9 @@ public class QuestionController {
      */
     @PostMapping("/list/page/vo")
     public BaseResponse<Page<QuestionVO>> listQuestionVOByPage(@RequestBody QuestionQueryRequest questionQueryRequest) {
+
+        ThrowUtils.throwIf(questionQueryRequest == null, ErrorCode.PARAMS_ERROR);
+
         return ResultUtils.success(questionService.getQuestionVOPage(questionQueryRequest));
     }
 

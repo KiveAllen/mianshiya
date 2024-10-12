@@ -1,7 +1,10 @@
 package com.allen.mianshiya.mapper;
 
+import com.allen.mianshiya.model.entity.Question;
 import com.allen.mianshiya.model.entity.QuestionBankQuestion;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+
+import java.util.List;
 
 /**
 * @author KiveAllen
@@ -10,6 +13,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 * @Entity com.allen.mianshiya.model.entity.QuestionBankQuestion
 */
 public interface QuestionBankQuestionMapper extends BaseMapper<QuestionBankQuestion> {
+
+    List<Question> getQuestionListByQuestionBankId(Long questionBankId);
 
 }
 

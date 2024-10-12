@@ -28,4 +28,8 @@ public class QuestionUpdateRequest implements Serializable {
      * 标签列表
      */
     private List<String> tags;
+    /**
+     * 题目答案
+     */
+    private String answer;
 }

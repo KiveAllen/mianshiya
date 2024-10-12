@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * 查询题库题目请求
+ * 查询题目请求
  *
  */
 @EqualsAndHashCode(callSuper = true)
@@ -49,6 +49,11 @@ public class QuestionQueryRequest extends PageRequest implements Serializable {
      * 创建用户 id
      */
     private Long userId;
+
+    /**
+     * 题库 id
+     */
+    private Long questionBankId;
 
     private static final long serialVersionUID = 1L;
 }

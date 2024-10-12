@@ -5,13 +5,13 @@
 <mapper namespace="com.allen.mianshiya.mapper.QuestionBankQuestionMapper">
 
     <resultMap id="BaseResultMap" type="com.allen.mianshiya.model.entity.QuestionBankQuestion">
-            <id property="id" column="id" jdbcType="BIGINT"/>
-            <result property="questionBankId" column="questionBankId" jdbcType="BIGINT"/>
-            <result property="questionId" column="questionId" jdbcType="BIGINT"/>
-            <result property="userId" column="userId" jdbcType="BIGINT"/>
-            <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
-            <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
-            <result property="questionOrder" column="questionOrder" jdbcType="INTEGER"/>
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="questionBankId" column="questionBankId" jdbcType="BIGINT"/>
+        <result property="questionId" column="questionId" jdbcType="BIGINT"/>
+        <result property="userId" column="userId" jdbcType="BIGINT"/>
+        <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+        <result property="questionOrder" column="questionOrder" jdbcType="INTEGER"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -19,4 +19,19 @@
         userId,createTime,updateTime,
         questionOrder
     </sql>
+    <select id="getQuestionListByQuestionBankId" resultType="com.allen.mianshiya.model.entity.Question">
+        SELECT q.id,
+               q.title,
+               q.content,
+               q.tags,
+               q.answer,
+               q.user_id,
+               q.create_time,
+               q.update_time
+        FROM question_bank_question qbq
+                 JOIN
+             question q ON qbq.question_id = q.id
+        WHERE qbq.question_bank_id = #{questionBankId};
+    </select>
+
 </mapper>

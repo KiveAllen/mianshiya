@@ -92,7 +92,7 @@ public class QuestionBankController {
     }
 
     /**
-     * 分页获取题库题目列表（仅管理员可用）
+     * 分页获取题库列表（仅管理员可用）
      *
      * @param questionBankQueryRequest 查询参数
      * @return 分页列表
@@ -120,16 +120,18 @@ public class QuestionBankController {
     // endregion
 
     /**
-     * 根据 id 获取题库（封装类）
+     * 根据 id 获取题库下题目（封装类）
      *
-     * @param id 题库id
+     * @param questionBankQueryRequest 查询参数
      * @return 封装类
      */
     @GetMapping("/get/vo")
-    public BaseResponse<QuestionBankVO> getQuestionBankVOById(@RequestParam Long id) {
+    public BaseResponse<QuestionBankVO> getQuestionBankVOById(@RequestParam QuestionBankQueryRequest questionBankQueryRequest) {
+        Long id = questionBankQueryRequest.getId();
+        Boolean needQueryQuestionList = questionBankQueryRequest.getNeedQueryQuestionList();
         ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
         // 获取封装类
-        return ResultUtils.success(questionBankService.getQuestionBankVO(id));
+        return ResultUtils.success(questionBankService.getQuestionBankVO(id, needQueryQuestionList));
     }
 
     /**

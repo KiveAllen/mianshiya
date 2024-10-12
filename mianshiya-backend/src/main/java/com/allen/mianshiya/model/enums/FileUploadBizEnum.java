@@ -1,20 +1,20 @@
 package com.allen.mianshiya.model.enums;
 
+import lombok.Getter;
+import org.apache.commons.lang3.ObjectUtils;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import lombok.Getter;
-import org.apache.commons.lang3.ObjectUtils;
-
 /**
  * 文件上传业务类型枚举
- *
  */
 @Getter
 public enum FileUploadBizEnum {
 
-    USER_AVATAR("用户头像", "user_avatar");
+    USER_AVATAR("用户头像", "user_avatar"),
+    PHOTO_FILE("相册", "photo_file");
 
     private final String text;
 

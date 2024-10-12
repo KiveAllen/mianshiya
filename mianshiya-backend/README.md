@@ -4,7 +4,6 @@
 
 只需 1 分钟即可完成内容网站的后端！！！大家还可以在此基础上快速开发自己的项目。
 
-[toc]
 
 ## 模板特点
 
@@ -118,14 +117,14 @@ spring:
 
 修改前：
 
-```java
+```
 @SpringBootApplication(exclude = {RedisAutoConfiguration.class})
 ```
 
 修改后：
 
 
-```java
+```
 @SpringBootApplication
 ```
 

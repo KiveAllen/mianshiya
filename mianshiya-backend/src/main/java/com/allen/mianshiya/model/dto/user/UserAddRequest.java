@@ -1,24 +1,26 @@
 package com.allen.mianshiya.model.dto.user;
 
-import java.io.Serializable;
 import lombok.Data;
+
+import java.io.Serializable;
 
 /**
  * 用户创建请求
- *
  */
 @Data
 public class UserAddRequest implements Serializable {
 
-    /**
-     * 用户昵称
-     */
-    private String userName;
+    private static final long serialVersionUID = 1L;
 
     /**
      * 账号
      */
     private String userAccount;
+
+    /**
+     * 用户昵称
+     */
+    private String userName;
 
     /**
      * 用户头像
@@ -30,5 +32,4 @@ public class UserAddRequest implements Serializable {
      */
     private String userRole;
 
-    private static final long serialVersionUID = 1L;
 }

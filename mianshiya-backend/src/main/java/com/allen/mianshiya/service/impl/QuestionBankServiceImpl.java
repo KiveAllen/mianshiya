@@ -3,12 +3,17 @@ package com.allen.mianshiya.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import com.allen.mianshiya.common.ErrorCode;
 import com.allen.mianshiya.constant.CommonConstant;
+import com.allen.mianshiya.exception.BusinessException;
 import com.allen.mianshiya.exception.ThrowUtils;
 import com.allen.mianshiya.mapper.QuestionBankMapper;
+import com.allen.mianshiya.model.dto.question.QuestionQueryRequest;
 import com.allen.mianshiya.model.dto.questionBank.QuestionBankQueryRequest;
+import com.allen.mianshiya.model.entity.Question;
 import com.allen.mianshiya.model.entity.QuestionBank;
 import com.allen.mianshiya.model.vo.QuestionBankVO;
+import com.allen.mianshiya.service.QuestionBankQuestionService;
 import com.allen.mianshiya.service.QuestionBankService;
+import com.allen.mianshiya.service.QuestionService;
 import com.allen.mianshiya.utils.SqlUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -17,7 +22,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,6 +34,12 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class QuestionBankServiceImpl extends ServiceImpl<QuestionBankMapper, QuestionBank> implements QuestionBankService {
+
+    @Resource
+    private QuestionService questionService;
+
+    @Resource
+    private QuestionBankQuestionService questionBankQuestionService;
 
     /**
      * 添加题库
@@ -54,6 +67,7 @@ public class QuestionBankServiceImpl extends ServiceImpl<QuestionBankMapper, Que
      * @return 是否删除成功
      */
     @Override
+    @Transactional(rollbackFor = BusinessException.class)
     public Boolean deleteQuestionBank(long id) {
         // 判断是否存在
         QuestionBank oldQuestionBank = this.getById(id);
@@ -62,6 +76,11 @@ public class QuestionBankServiceImpl extends ServiceImpl<QuestionBankMapper, Que
         // 操作数据库
         boolean result = this.removeById(id);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+
+        // 删除题库题目联系
+        Boolean deleteQuestionBankQuestion = questionBankQuestionService.deleteQuestionBankQuestion(id, null, false);
+        ThrowUtils.throwIf(!deleteQuestionBankQuestion, ErrorCode.OPERATION_ERROR);
+
         return true;
     }
 
@@ -119,10 +138,19 @@ public class QuestionBankServiceImpl extends ServiceImpl<QuestionBankMapper, Que
      * @return 封装类
      */
     @Override
-    public QuestionBankVO getQuestionBankVO(Long id) {
+    public QuestionBankVO getQuestionBankVO(Long id, Boolean needQueryQuestionList) {
         QuestionBank questionBank = this.getQuestionBank(id);
         // 获取封装类
-        return QuestionBankVO.objToVo(questionBank);
+        QuestionBankVO questionBankVO = QuestionBankVO.objToVo(questionBank);
+
+        if (needQueryQuestionList) {
+            QuestionQueryRequest questionQueryRequest = new QuestionQueryRequest();
+            questionQueryRequest.setQuestionBankId(id);
+            Page<Question> questionPage = questionService.getQuestionPage(questionQueryRequest);
+            questionBankVO.setQuestionPage(questionPage);
+        }
+
+        return questionBankVO;
     }
 
     /**
@@ -141,6 +169,7 @@ public class QuestionBankServiceImpl extends ServiceImpl<QuestionBankMapper, Que
         if (CollUtil.isEmpty(questionBankList)) {
             return questionBankVOPage;
         }
+
         // 对象列表 => 封装对象列表
         List<QuestionBankVO> questionBankVOList = questionBankList.stream().map(QuestionBankVO::objToVo).collect(Collectors.toList());
         questionBankVOPage.setRecords(questionBankVOList);
@@ -196,7 +225,7 @@ public class QuestionBankServiceImpl extends ServiceImpl<QuestionBankMapper, Que
         // 精确查询
         queryWrapper.ne(ObjectUtils.isNotEmpty(notId), "id", notId);
         queryWrapper.eq(ObjectUtils.isNotEmpty(id), "id", id);
-        queryWrapper.eq(ObjectUtils.isNotEmpty(userId), "userId", userId);
+        queryWrapper.eq(ObjectUtils.isNotEmpty(userId), "user_id", userId);
         // 排序规则
         queryWrapper.orderBy(SqlUtils.validSortField(sortField),
                 sortOrder.equals(CommonConstant.SORT_ORDER_ASC),

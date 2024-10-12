@@ -3,6 +3,7 @@ package com.allen.mianshiya.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import com.allen.mianshiya.common.ErrorCode;
 import com.allen.mianshiya.constant.CommonConstant;
+import com.allen.mianshiya.constant.UserConstant;
 import com.allen.mianshiya.exception.BusinessException;
 import com.allen.mianshiya.exception.ThrowUtils;
 import com.allen.mianshiya.mapper.UserMapper;
@@ -12,10 +13,12 @@ import com.allen.mianshiya.model.enums.UserRoleEnum;
 import com.allen.mianshiya.model.vo.LoginUserVO;
 import com.allen.mianshiya.model.vo.UserVO;
 import com.allen.mianshiya.service.UserService;
+import com.allen.mianshiya.utils.SnowflakeUtils;
 import com.allen.mianshiya.utils.SqlUtils;
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
@@ -25,9 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.allen.mianshiya.constant.UserConstant.USER_LOGIN_STATE;
@@ -43,6 +44,97 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * 盐值，混淆密码
      */
     public static final String SALT = "mianshiya2024";
+
+    /**
+     * 添加用户
+     *
+     * @param user 用户信息
+     * @return 新用户id
+     */
+    @Override
+    public Long addUser(User user) {
+
+        String userAccount = user.getUserAccount();
+        String userRole = user.getUserRole();
+
+        // 校验
+        ThrowUtils.throwIf(StringUtils.isAnyBlank(userAccount, userRole),
+                ErrorCode.PARAMS_ERROR, "参数为空");
+        ThrowUtils.throwIf(userAccount.length() < 4, ErrorCode.PARAMS_ERROR, "用户账号过短");
+        ThrowUtils.throwIf(!UserConstant.ROLE_ARRAY.contains(userRole), ErrorCode.PARAMS_ERROR, "用户角色不存在");
+
+        synchronized (userAccount.intern()) {
+            // 插入默认密码
+            String encryptPassword = DigestUtils
+                    .md5DigestAsHex((SALT + UserConstant.DEFAULT_USER_PASSWORD).getBytes());
+            user.setUserPassword(encryptPassword);
+
+            // 插入默认数据
+            if (StringUtils.isBlank(user.getUserName())) {
+                user.setUserName(UserConstant.DEFAULT_USER_NAME + SnowflakeUtils.getId());
+            }
+            if (StringUtils.isBlank(user.getUserAvatar())) {
+                user.setUserAvatar(UserConstant.DEFAULT_USER_AVATAR);
+            }
+            user.setUserProfile(UserConstant.DEFAULT_USER_PROFILE);
+
+            // 调用方法
+            boolean result = this.save(user);
+
+            ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+            return user.getId();
+        }
+    }
+
+    /**
+     * 删除用户
+     *
+     * @param id 用户id
+     * @return 删除结果
+     */
+    @Override
+    public Boolean deleteUser(Long id) {
+        // 查找用户是否存在
+        User user = this.getById(id);
+        ThrowUtils.throwIf(Objects.isNull(user), ErrorCode.NOT_FOUND_ERROR, "用户不存在");
+
+        boolean result = this.removeById(id);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "删除失败");
+        return true;
+    }
+
+    /**
+     * 更新用户信息
+     *
+     * @param user 用户信息
+     * @return 更新结果
+     */
+    @Override
+    public Boolean updateUser(User user) {
+        // 查找用户是否存在
+        User oldUser = this.getById(user.getId());
+        ThrowUtils.throwIf(Objects.isNull(oldUser), ErrorCode.NOT_FOUND_ERROR, "用户不存在");
+        ThrowUtils.throwIf(!UserConstant.ROLE_ARRAY.contains(user.getUserRole())
+                , ErrorCode.PARAMS_ERROR, "用户角色不存在");
+
+        boolean result = this.updateById(user);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        return true;
+    }
+
+    /**
+     * 分页获取用户列表
+     *
+     * @param userQueryRequest 查询条件
+     * @return 分页结果
+     */
+    @Override
+    public Page<User> listUserByPage(UserQueryRequest userQueryRequest) {
+        long current = userQueryRequest.getCurrent();
+        long size = userQueryRequest.getPageSize();
+        return this.page(new Page<>(current, size),
+                this.getQueryWrapper(userQueryRequest));
+    }
 
     @Override
     public long userRegister(String userAccount, String userPassword, String checkPassword) {
@@ -70,6 +162,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             User user = new User();
             user.setUserAccount(userAccount);
             user.setUserPassword(encryptPassword);
+            // 默认数据
+            user.setUserName(UserConstant.DEFAULT_USER_NAME + SnowflakeUtils.getId());
+            user.setUserAvatar(UserConstant.DEFAULT_USER_AVATAR);
+            user.setUserProfile(UserConstant.DEFAULT_USER_PROFILE);
 
             // 操作数据库
             boolean saveResult = this.save(user);
@@ -92,10 +188,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
 
         // 查询用户是否存在
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("userAccount", userAccount);
-        queryWrapper.eq("userPassword", encryptPassword);
-        User user = this.baseMapper.selectOne(queryWrapper);
+        LambdaQueryWrapper<User> lambdaQueryWrapper = Wrappers.lambdaQuery(User.class)
+                .eq(User::getUserAccount, userAccount)
+                .eq(User::getUserPassword, encryptPassword);
+        User user = this.baseMapper.selectOne(lambdaQueryWrapper);
         ThrowUtils.throwIf(user == null, ErrorCode.PARAMS_ERROR, "用户不存在或密码错误");
 
         // 记录用户的登录态
@@ -118,7 +214,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         synchronized (unionId.intern()) {
             // 查询用户是否已存在
             QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("unionId", unionId);
+            queryWrapper.eq("union_id", unionId);
             User user = this.getOne(queryWrapper);
             // 被封号，禁止登录
             if (user != null && UserRoleEnum.BAN.getValue().equals(user.getUserRole())) {
@@ -158,44 +254,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     /**
-     * 获取当前登录用户（允许未登录）
-     *
-     * @param request http请求
-     * @return 当前登录用户
-     */
-    @Override
-    public User getLoginUserPermitNull(HttpServletRequest request) {
-        // 先判断是否已登录
-        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
-        User currentUser = (User) userObj;
-        if (currentUser == null || currentUser.getId() == null) {
-            return null;
-        }
-
-        // 直接走缓存
-        return currentUser;
-    }
-
-    /**
-     * 是否为管理员
-     *
-     * @param request http请求
-     * @return 是否为管理员
-     */
-    @Override
-    public boolean isAdmin(HttpServletRequest request) {
-        // 仅管理员可查询
-        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
-        User user = (User) userObj;
-        return isAdmin(user);
-    }
-
-    @Override
-    public boolean isAdmin(User user) {
-        return user != null && UserRoleEnum.ADMIN.getValue().equals(user.getUserRole());
-    }
-
-    /**
      * 用户注销
      *
      * @param request http请求
@@ -220,7 +278,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public UserVO getUserVO(User user) {
+    public UserVO getUserVOByUserList(User user) {
         if (user == null) {
             return null;
         }
@@ -229,12 +287,41 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return userVO;
     }
 
+    /**
+     * 获取脱敏的用户信息
+     *
+     * @param id 用户id
+     * @return 脱敏用户信息
+     */
     @Override
-    public List<UserVO> getUserVO(List<User> userList) {
+    public UserVO getUserVOById(Long id) {
+        User user = this.getById(id);
+        return this.getUserVOByUserList(user);
+    }
+
+    /**
+     * 获取脱敏的用户信息
+     *
+     * @param ids 用户id列表
+     * @return 脱敏用户信息Map
+     */
+    @Override
+    public Map<Long, UserVO> getUserVOMapByIds(List<Long> ids) {
+        if (CollUtil.isEmpty(ids)) {
+            return new HashMap<>();
+        }
+
+        List<User> userList = this.listByIds(ids);
+        return userList.stream().map(this::getUserVOByUserList)
+                .collect(Collectors.toMap(UserVO::getId, userVO -> userVO));
+    }
+
+    @Override
+    public List<UserVO> getUserVOByUserList(List<User> userList) {
         if (CollUtil.isEmpty(userList)) {
             return new ArrayList<>();
         }
-        return userList.stream().map(this::getUserVO).collect(Collectors.toList());
+        return userList.stream().map(this::getUserVOByUserList).collect(Collectors.toList());
     }
 
     @Override
@@ -242,23 +329,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         ThrowUtils.throwIf(userQueryRequest == null, ErrorCode.PARAMS_ERROR, "请求参数为空");
 
         // 统一处理字符串参数
-        String idStr = Objects.toString(userQueryRequest.getId());
-        String unionId = Objects.toString(userQueryRequest.getUnionId());
-        String mpOpenId = Objects.toString(userQueryRequest.getMpOpenId());
-        String userName = Objects.toString(userQueryRequest.getUserName());
-        String userProfile = Objects.toString(userQueryRequest.getUserProfile());
-        String userRole = Objects.toString(userQueryRequest.getUserRole());
-        String sortField = Objects.toString(userQueryRequest.getSortField());
-        String sortOrder = Objects.toString(userQueryRequest.getSortOrder());
+        Long idStr = userQueryRequest.getId();
+        String unionId = Objects.toString(userQueryRequest.getUnionId(), "");
+        String mpOpenId = Objects.toString(userQueryRequest.getMpOpenId(), "");
+        String userName = Objects.toString(userQueryRequest.getUserName(), "");
+        String userProfile = Objects.toString(userQueryRequest.getUserProfile(), "");
+        String userRole = Objects.toString(userQueryRequest.getUserRole(), "");
+        String sortField = Objects.toString(userQueryRequest.getSortField(), "");
+        String sortOrder = Objects.toString(userQueryRequest.getSortOrder(), "");
 
         // 创建查询包装器
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq(!idStr.isEmpty(), "id", idStr);
-        queryWrapper.eq(!unionId.isEmpty(), "unionId", unionId);
-        queryWrapper.eq(!mpOpenId.isEmpty(), "mpOpenId", mpOpenId);
-        queryWrapper.eq(!userRole.isEmpty(), "userRole", userRole);
-        queryWrapper.like(!userProfile.isEmpty(), "userProfile", userProfile);
-        queryWrapper.like(!userName.isEmpty(), "userName", userName);
+        queryWrapper.eq(idStr != null, "id", idStr);
+        queryWrapper.eq(!unionId.isEmpty(), "union_id", unionId);
+        queryWrapper.eq(!mpOpenId.isEmpty(), "mp_open_id", mpOpenId);
+        queryWrapper.eq(!userRole.isEmpty(), "user_role", userRole);
+        queryWrapper.like(!userProfile.isEmpty(), "user_profile", userProfile);
+        queryWrapper.like(!userName.isEmpty(), "user_name", userName);
 
         // 验证排序字段
         if (!sortField.isEmpty() && SqlUtils.validSortField(sortField)) {

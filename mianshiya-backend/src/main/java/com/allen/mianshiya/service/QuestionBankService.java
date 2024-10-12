@@ -54,7 +54,7 @@ public interface QuestionBankService extends IService<QuestionBank> {
      * @param id 题库id
      * @return 封装类
      */
-    QuestionBankVO getQuestionBankVO(Long id);
+    QuestionBankVO getQuestionBankVO(Long id ,Boolean needQueryQuestionList);
 
     /**
      * 分页获取题库封装
