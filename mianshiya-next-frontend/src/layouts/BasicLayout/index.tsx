@@ -7,6 +7,8 @@ import React from 'react';
 import Image from 'next/image';
 import {usePathname} from 'next/navigation';
 import Link from 'next/link';
+import GlobalFooter from "@/components/GlobalFooter";
+import './index.css'
 
 /**
  * 搜索框
@@ -123,19 +125,9 @@ export default function BasicLayout({children}: Props) {
                         </>
                     );
                 }}
-                menuFooterRender={(props) => {
-                    if (props?.collapsed) return undefined;
-                    return (
-                        <div
-                            style={{
-                                textAlign: 'center',
-                                paddingBlockStart: 12,
-                            }}
-                        >
-                            <div>© 2021 Made with love</div>
-                            <div>by Ant Design</div>
-                        </div>
-                    );
+                // 渲染底部栏
+                footerRender={() => {
+                    return <GlobalFooter/>
                 }}
                 onMenuHeaderClick={(e) => console.log(e)}
                 menuDataRender={() => {
