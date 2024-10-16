@@ -1,12 +1,20 @@
 import React from "react";
-import { AntdRegistry } from "@ant-design/nextjs-registry";
+import {AntdRegistry} from "@ant-design/nextjs-registry";
+import BasicLayout from "@/layouts/BasicLayout";
+import "./globals.css"
 
-const RootLayout = ({ children }: React.PropsWithChildren) => (
-  <html lang="en">
-    <body>
-      <AntdRegistry>{children}</AntdRegistry>
-    </body>
-  </html>
-);
+export default function RootLayout({children,}: Readonly<{
+    children: React.ReactNode;
+}>) {
+    return (
+        <html lang="zh">
+        <body>
+        <AntdRegistry>
+            <BasicLayout>{children}</BasicLayout>
+        </AntdRegistry>
+        </body>
+        </html>
+    );
+}
 
-export default RootLayout;
+
