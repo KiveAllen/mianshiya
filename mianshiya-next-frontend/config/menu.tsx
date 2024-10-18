@@ -6,7 +6,6 @@ export const menus = [
   {
     path: "/",
     name: "首页",
-    hideInMenu: true,
   },
   {
     path: "/questions",
