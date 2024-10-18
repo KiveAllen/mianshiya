@@ -12,6 +12,7 @@ import './index.css'
 import {menus} from "../../../config/menu";
 import {RootState} from "@/app/stores";
 import {useSelector} from 'react-redux';
+import menuAccess from "@/access/menuAccess";
 
 /**
  * 搜索框
@@ -46,11 +47,12 @@ const SearchInput = () => {
 };
 
 interface Props {
-  children: React.ReactNode;
+    children: React.ReactNode;
 }
 
 export default function BasicLayout({children}: Props) {
     const pathname = usePathname();
+    // 当前登录用户
     const loginUser = useSelector((state: RootState) => state.loginUser)
 
     return (
@@ -123,8 +125,9 @@ export default function BasicLayout({children}: Props) {
                     return <GlobalFooter/>;
                 }}
                 onMenuHeaderClick={(e) => console.log(e)}
+                // 菜单数据渲染
                 menuDataRender={() => {
-                    return menus;
+                    return menuAccess(loginUser, menus);
                 }}
                 // 定义了菜单项如何渲染
                 menuItemRender={(item, dom) => (
@@ -133,6 +136,7 @@ export default function BasicLayout({children}: Props) {
                     </Link>
                 )}
             >
+
                 {children}
             </ProLayout>
         </div>

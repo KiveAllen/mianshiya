@@ -1,13 +1,14 @@
-import styles from "./page.module.css";
-import {Button} from "antd";
+import './index.css'
 
-export default function Home() {
+/**
+ * 首页
+ * @constructor
+ */
+export default function HomePage() {
 
     return (
-        <div className={styles.page}>
-            <main className={styles.main}>
-                <Button type="primary">Primary Button</Button>
-            </main>
+        <div id='homePage'>
+            首页
         </div>
     );
 }

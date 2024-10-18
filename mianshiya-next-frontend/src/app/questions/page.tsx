@@ -1,12 +1,14 @@
-import styles from "./page.module.css";
-import {Button} from "antd";
+import './index.css'
 
-export default function Home() {
+/**
+ * 题目
+ * @constructor
+ */
+export default function QuestionsPage() {
+
     return (
-        <div className={styles.page}>
-            <main className={styles.main}>
-                <Button type="primary">题目大全</Button>
-            </main>
+        <div id='questionsPage'>
+            题目列表
         </div>
     );
 }

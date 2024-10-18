@@ -3,10 +3,10 @@ import React, {useCallback, useEffect} from "react";
 import {AntdRegistry} from "@ant-design/nextjs-registry";
 import BasicLayout from "@/layouts/BasicLayout";
 import "./globals.css";
-import store, {AppDispatch} from "@/app/stores";
-import {Provider, useDispatch} from "react-redux";
+import store from "@/app/stores";
+import {Provider} from "react-redux";
 import {getLoginUserUsingGet} from "@/api/userController";
-import {setLoginUser} from "@/app/stores/loginUser";
+import AccessLayout from "@/access/AccessLayout";
 
 /**
  * 全局初始化页面
@@ -17,7 +17,7 @@ const InitLayout: React.FC<Readonly<{
     children: React.ReactNode;
 }>
 > = ({children}) => {
-    const dispatch = useDispatch<AppDispatch>();
+    // const dispatch = useDispatch<AppDispatch>();
     // 初始化用户信息
     const doInitLoginUser = useCallback(async () => {
         const res = await getLoginUserUsingGet();
@@ -25,14 +25,16 @@ const InitLayout: React.FC<Readonly<{
             // 更新全局用户状态
         } else {
             // 跳转到登录页面
-            setTimeout(() => {
-                const testUser = {
-                    id: 1,
-                    userName: "测试登录",
-                    userAvatar: "https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png",
-                }
-                dispatch(setLoginUser(testUser))
-            }, 3000);
+            // 仅用于测试
+            // setTimeout(() => {
+            //     const testUser = {
+            //         id: 1,
+            //         userName: "测试登录",
+            //         userAvatar: "https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png",
+            //         userRole: "admin",
+            //     }
+            //     dispatch(setLoginUser(testUser))
+            // }, 3000);
         }
 
     }, [])
@@ -55,7 +57,11 @@ export default function RootLayout({children}: Readonly<{
         <AntdRegistry>
             <Provider store={store}>
                 <InitLayout>
-                    <BasicLayout>{children}</BasicLayout>
+                    <BasicLayout>
+                        <AccessLayout>
+                            {children}
+                        </AccessLayout>
+                    </BasicLayout>
                 </InitLayout>
             </Provider>
         </AntdRegistry>
