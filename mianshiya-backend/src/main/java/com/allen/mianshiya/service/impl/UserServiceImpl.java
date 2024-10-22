@@ -41,11 +41,6 @@ import static com.allen.mianshiya.constant.UserConstant.USER_LOGIN_STATE;
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
     /**
-     * 盐值，混淆密码
-     */
-    public static final String SALT = "mianshiya2024";
-
-    /**
      * 添加用户
      *
      * @param user 用户信息
@@ -66,7 +61,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         synchronized (userAccount.intern()) {
             // 插入默认密码
             String encryptPassword = DigestUtils
-                    .md5DigestAsHex((SALT + UserConstant.DEFAULT_USER_PASSWORD).getBytes());
+                    .md5DigestAsHex((CommonConstant.SALT + UserConstant.DEFAULT_USER_PASSWORD).getBytes());
             user.setUserPassword(encryptPassword);
 
             // 插入默认数据
@@ -156,7 +151,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             ThrowUtils.throwIf(count > 0, ErrorCode.PARAMS_ERROR, "账号重复");
 
             // 加密
-            String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
+            String encryptPassword = DigestUtils.md5DigestAsHex((CommonConstant.SALT + userPassword).getBytes());
 
             // 插入数据
             User user = new User();
@@ -185,7 +180,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         ThrowUtils.throwIf(userPassword.length() < 8, ErrorCode.PARAMS_ERROR, "用户密码过短");
 
         // 加密
-        String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
+        String encryptPassword = DigestUtils.md5DigestAsHex((CommonConstant.SALT + userPassword).getBytes());
 
         // 查询用户是否存在
         LambdaQueryWrapper<User> lambdaQueryWrapper = Wrappers.lambdaQuery(User.class)

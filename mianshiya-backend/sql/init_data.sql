@@ -1,14 +1,14 @@
 INSERT INTO user (id, user_account, user_password, union_id, mp_open_id, user_name, user_avatar, user_profile,
                   user_role)
-VALUES (1, 'user1', 'b0dd3697a192885d7c055db46155b26a', 'unionId1', 'mpOpenId1', 'user1',
+VALUES (1, 'user1', '89ef004096b93c4c8d4b2d1c3570578b', 'unionId1', 'mpOpenId1', 'user1',
         'https://www.code-nav.cn/logo.png', '喜欢编程的小白', 'user'),
-       (2, 'user2', 'b0dd3697a192885d7c055db46155b26a', 'unionId2', 'mpOpenId2', 'user2',
+       (2, 'user2', '89ef004096b93c4c8d4b2d1c3570578b', 'unionId2', 'mpOpenId2', 'user2',
         'https://www.code-nav.cn/logo.png', '全栈开发工程师', 'user'),
-       (3, 'user3', 'b0dd3697a192885d7c055db46155b26a', 'unionId3', 'mpOpenId3', 'user3',
+       (3, 'user3', '89ef004096b93c4c8d4b2d1c3570578b', 'unionId3', 'mpOpenId3', 'user3',
         'https://www.code-nav.cn/logo.png', '前端爱好者', 'user'),
-       (4, 'user4', 'b0dd3697a192885d7c055db46155b26a', 'unionId4', 'mpOpenId4', 'user4',
+       (4, 'user4', '89ef004096b93c4c8d4b2d1c3570578b', 'unionId4', 'mpOpenId4', 'user4',
         'https://www.code-nav.cn/logo.png', '后端开发工程师', 'user'),
-       (5, 'allen', 'b0dd3697a192885d7c055db46155b26a', NULL, NULL, '程序员小幽', 'https://www.code-nav.cn/logo.png',
+       (5, 'allen', '89ef004096b93c4c8d4b2d1c3570578b', NULL, NULL, '程序员小幽', 'https://www.code-nav.cn/logo.png',
         '系统管理员', 'admin');
 
 INSERT INTO question_bank (title, description, picture, user_id)

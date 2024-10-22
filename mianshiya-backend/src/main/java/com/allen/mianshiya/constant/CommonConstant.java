@@ -15,5 +15,10 @@ public interface CommonConstant {
      * 降序
      */
     String SORT_ORDER_DESC = " descend";
+
+    /**
+     * 盐值，混淆密码
+     */
+    String SALT = "mianshiya2024";
     
 }
