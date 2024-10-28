@@ -1,37 +1,37 @@
 "use client";
 import CreateModal from "./components/CreateModal";
 import UpdateModal from "./components/UpdateModal";
-import {deleteUserUsingDelete, listUserByPageUsingPost,} from "@/api/userController";
+import {deleteQuestionBankUsingDelete, listQuestionBankByPageUsingPost,} from "@/api/questionBankController";
 import {PlusOutlined} from "@ant-design/icons";
 import type {ActionType, ProColumns} from "@ant-design/pro-components";
 import {PageContainer, ProTable} from "@ant-design/pro-components";
-import {Button, message, Space, Typography} from "antd";
+import {Button, message, Popconfirm, Space, Typography} from "antd";
 import React, {useRef, useState} from "react";
 
 /**
- * 用户管理页面
+ * 题库管理页面
  *
  * @constructor
  */
-const UserAdminPage: React.FC = () => {
+const QuestionBankAdminPage: React.FC = () => {
   // 是否显示新建窗口
   const [createModalVisible, setCreateModalVisible] = useState<boolean>(false);
   // 是否显示更新窗口
   const [updateModalVisible, setUpdateModalVisible] = useState<boolean>(false);
   const actionRef = useRef<ActionType>();
-  // 当前用户点击的数据
-  const [currentRow, setCurrentRow] = useState<API.User>();
+  // 当前题库点击的数据
+  const [currentRow, setCurrentRow] = useState<API.QuestionBank>();
 
   /**
    * 删除节点
    *
    * @param row
    */
-  const handleDelete = async (row: API.User) => {
+  const handleDelete = async (row: API.QuestionBank) => {
     const hide = message.loading("正在删除");
     if (!row) return true;
     try {
-      await deleteUserUsingDelete({
+      await deleteQuestionBankUsingDelete({
         id: row.id,
       });
       hide();
@@ -54,6 +54,7 @@ const UserAdminPage: React.FC = () => {
       dataIndex: "id",
       valueType: "text",
       hideInForm: true,
+      hideInSearch: true
     },
     {
       title: "标题",
@@ -112,16 +113,22 @@ const UserAdminPage: React.FC = () => {
           >
             修改
           </Typography.Link>
-          <Typography.Link type="danger" onClick={() => handleDelete(record)}>
-            删除
-          </Typography.Link>
+          <Popconfirm
+              placement="topRight"
+              title="是否删除此题库"
+              onConfirm={() => handleDelete(record)}
+              okText="是"
+              cancelText="否"
+          >
+            <Typography.Link type="danger">删除</Typography.Link>
+          </Popconfirm>
         </Space>
       ),
     },
   ];
   return (
     <PageContainer>
-      <ProTable<API.User>
+      <ProTable<API.QuestionBank>
         headerTitle={"查询表格"}
         actionRef={actionRef}
         rowKey="key"
@@ -143,12 +150,12 @@ const UserAdminPage: React.FC = () => {
           const sortField = Object.keys(sort)?.[0];
           const sortOrder = sort?.[sortField] ?? undefined;
 
-          const { data, code } = await listUserByPageUsingPost({
+          const { data, code } = await listQuestionBankByPageUsingPost({
             ...params,
             sortField,
             sortOrder,
             ...filter,
-          } as API.UserQueryRequest);
+          } as API.QuestionBankQueryRequest);
           return {
             success: code === 0,
             data: data?.records || [],
@@ -184,4 +191,4 @@ const UserAdminPage: React.FC = () => {
     </PageContainer>
   );
 };
-export default UserAdminPage;
+export default QuestionBankAdminPage;
