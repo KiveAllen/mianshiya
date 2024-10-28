@@ -55,8 +55,8 @@ public class QuestionController {
 
         // 拷贝属性
         Question question = new Question();
-        question.setTags(JSONUtil.toJsonStr(questionAddRequest.getTags()));
         BeanUtils.copyProperties(questionAddRequest, question);
+        question.setTags(JSONUtil.toJsonStr(questionAddRequest.getTags()));
 
         // 获取当前用户
         User loginUser = userService.getLoginUser(request);

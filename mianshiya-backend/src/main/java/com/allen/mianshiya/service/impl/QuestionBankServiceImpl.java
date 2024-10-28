@@ -256,7 +256,7 @@ public class QuestionBankServiceImpl extends ServiceImpl<QuestionBankMapper, Que
         String title = questionBankQueryRequest.getTitle();
         String description = questionBankQueryRequest.getDescription();
         String searchText = questionBankQueryRequest.getSearchText();
-        String sortField = questionBankQueryRequest.getSortField();
+        String sortField = SqlUtils.toUnderlineCase(questionBankQueryRequest.getSortField());
         String sortOrder = questionBankQueryRequest.getSortOrder();
         Long userId = questionBankQueryRequest.getUserId();
         // 从多字段中搜索

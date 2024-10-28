@@ -80,7 +80,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         String title = questionQueryRequest.getTitle();
         String content = questionQueryRequest.getContent();
         String searchText = questionQueryRequest.getSearchText();
-        String sortField = questionQueryRequest.getSortField();
+        String sortField = SqlUtils.toUnderlineCase(questionQueryRequest.getSortField());
         String sortOrder = questionQueryRequest.getSortOrder();
         List<String> tagList = questionQueryRequest.getTags();
         Long userId = questionQueryRequest.getUserId();

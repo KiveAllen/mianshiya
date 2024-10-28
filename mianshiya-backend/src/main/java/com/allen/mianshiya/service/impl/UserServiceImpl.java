@@ -330,7 +330,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String userAccount = Objects.toString(userQueryRequest.getUserAccount(), "");
         String userProfile = Objects.toString(userQueryRequest.getUserProfile(), "");
         String userRole = Objects.toString(userQueryRequest.getUserRole(), "");
-        String sortField = Objects.toString(userQueryRequest.getSortField(), "");
+        String sortField = SqlUtils.toUnderlineCase(Objects.toString(userQueryRequest.getSortField(), ""));
         String sortOrder = Objects.toString(userQueryRequest.getSortOrder(), "");
 
         // 创建查询包装器
