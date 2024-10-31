@@ -9,6 +9,7 @@ import {Button, message, Popconfirm, Space, Typography} from "antd";
 import React, {useRef, useState} from "react";
 import TagList from "@/components/TagList";
 import MdEditor from "@/components/MdEditor";
+import UpdateBankModal from "@/app/admin/question/components/UpdateBankModal";
 
 /**
  * 题目管理页面
@@ -20,6 +21,9 @@ const QuestionAdminPage: React.FC = () => {
     const [createModalVisible, setCreateModalVisible] = useState<boolean>(false);
     // 是否显示更新窗口
     const [updateModalVisible, setUpdateModalVisible] = useState<boolean>(false);
+    // 是否显示更新痛苦窗口
+    const [updateBankModalVisible, setUpdateBankModalVisible] = useState<boolean>(false);
+    // actionRef
     const actionRef = useRef<ActionType>();
     // 当前题目点击的数据
     const [currentRow, setCurrentRow] = useState<API.Question>();
@@ -57,6 +61,12 @@ const QuestionAdminPage: React.FC = () => {
             valueType: "text",
             hideInForm: true,
             hideInSearch: true
+        },
+        {
+            title: "所属题库",
+            dataIndex: "questionBankId",
+            hideInForm: true,
+            hideInTable: true
         },
         {
             title: "标题",
@@ -155,6 +165,14 @@ const QuestionAdminPage: React.FC = () => {
                     >
                         修改
                     </Typography.Link>
+                    <Typography.Link
+                        onClick={() => {
+                            setCurrentRow(record);
+                            setUpdateBankModalVisible(true);
+                        }}
+                    >
+                        所属题库
+                    </Typography.Link>
                     <Popconfirm
                         placement="topRight"
                         title="是否删除此题目"
@@ -169,11 +187,14 @@ const QuestionAdminPage: React.FC = () => {
         },
     ];
     return (
-        <PageContainer>
+        <PageContainer className="max-width-content">
             <ProTable<API.Question>
                 headerTitle={"查询表格"}
                 actionRef={actionRef}
                 rowKey="key"
+                scroll={{
+                    x: true,
+                }}
                 search={{
                     labelWidth: 120,
                 }}
@@ -228,6 +249,13 @@ const QuestionAdminPage: React.FC = () => {
                 }}
                 onCancel={() => {
                     setUpdateModalVisible(false);
+                }}
+            />
+            <UpdateBankModal
+                visible={updateBankModalVisible}
+                questionId={currentRow?.id}
+                onCancel={() => {
+                    setUpdateBankModalVisible(false);
                 }}
             />
         </PageContainer>

@@ -6,15 +6,15 @@ import ACCESS_ENUM from "@/access/accessEnum";
 export const menus = [
   {
     path: "/",
-    name: "首页",
-  },
-  {
-    path: "/questions",
-    name: "题目",
+    name: "主页",
   },
   {
     path: "/banks",
     name: "题库",
+  },
+  {
+    path: "/questions",
+    name: "题目",
   },
   {
     path: "https://mianshiya.com/",

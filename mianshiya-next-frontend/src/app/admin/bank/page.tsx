@@ -127,7 +127,7 @@ const QuestionBankAdminPage: React.FC = () => {
     },
   ];
   return (
-    <PageContainer>
+    <PageContainer className="max-width-content">
       <ProTable<API.QuestionBank>
         headerTitle={"查询表格"}
         actionRef={actionRef}

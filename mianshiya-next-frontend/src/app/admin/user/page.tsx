@@ -136,7 +136,7 @@ const UserAdminPage: React.FC = () => {
     },
   ];
   return (
-    <PageContainer>
+    <PageContainer className="max-width-content">
       <ProTable<API.User>
         headerTitle={"查询表格"}
         actionRef={actionRef}

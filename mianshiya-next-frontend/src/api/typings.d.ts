@@ -5,6 +5,12 @@ declare namespace API {
     message?: string;
   };
 
+  type BaseResponseListQuestionBankQuestionVO_ = {
+    code?: number;
+    data?: QuestionBankQuestionVO[];
+    message?: string;
+  };
+
   type BaseResponseLoginUserVO_ = {
     code?: number;
     data?: LoginUserVO;
@@ -96,6 +102,11 @@ declare namespace API {
   type getQuestionBankByIdUsingGETParams = {
     /** id */
     id: number;
+  };
+
+  type getQuestionBankQuestionUsingGETParams = {
+    questionBankId?: number;
+    questionId?: number;
   };
 
   type getQuestionByIdUsingGETParams = {
@@ -290,6 +301,12 @@ declare namespace API {
     questionId?: number;
   };
 
+  type QuestionBankQuestionVO = {
+    id?: number;
+    questionBankId?: number;
+    questionId?: number;
+  };
+
   type QuestionBankUpdateRequest = {
     description?: string;
     id?: number;
@@ -302,7 +319,7 @@ declare namespace API {
     description?: string;
     id?: number;
     picture?: string;
-    questionPage?: PageQuestion_;
+    questionPage?: PageQuestionVO_;
     title?: string;
     updateTime?: string;
     user?: UserVO;
@@ -333,10 +350,10 @@ declare namespace API {
   };
 
   type QuestionVO = {
+    answer?: string;
     content?: string;
     createTime?: string;
     id?: number;
-    isDelete?: number;
     tagList?: string[];
     title?: string;
     updateTime?: string;
@@ -369,6 +386,7 @@ declare namespace API {
     userAccount?: string;
     userAvatar?: string;
     userName?: string;
+    userProfile?: string;
     userRole?: string;
   };
 
@@ -384,12 +402,10 @@ declare namespace API {
 
   type UserQueryRequest = {
     current?: number;
-    id?: number;
-    mpOpenId?: string;
     pageSize?: number;
     sortField?: string;
     sortOrder?: string;
-    unionId?: string;
+    userAccount?: string;
     userName?: string;
     userProfile?: string;
     userRole?: string;

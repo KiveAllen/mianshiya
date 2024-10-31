@@ -3,6 +3,7 @@ import gfm from "@bytemd/plugin-gfm";
 import highlight from "@bytemd/plugin-highlight";
 import "bytemd/dist/index.css";
 import "highlight.js/styles/vs.css";
+import 'github-markdown-css/github-markdown-light.css';
 import "./index.css";
 
 interface Props {
