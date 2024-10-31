@@ -151,6 +151,8 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
                 Set<Long> questionIdSet = questionList.stream().map(Question::getId).collect(Collectors.toSet());
                 // 复用原有题目表的查询条件
                 queryWrapper.in("id", questionIdSet);
+            }else {
+                return new Page<>(current, size);
             }
         }
 
@@ -168,7 +170,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     public Page<QuestionVO> getQuestionVOPage(QuestionQueryRequest questionQueryRequest) {
 
         // 限制爬虫
-        ThrowUtils.throwIf(questionQueryRequest.getPageSize() > 20, ErrorCode.PARAMS_ERROR);
+        ThrowUtils.throwIf(questionQueryRequest.getPageSize() > 200, ErrorCode.PARAMS_ERROR);
 
         // 查询数据库
         Page<Question> questionPage = this.getQuestionPage(questionQueryRequest);

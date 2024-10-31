@@ -9,7 +9,6 @@ import com.allen.mianshiya.exception.ThrowUtils;
 import com.allen.mianshiya.mapper.QuestionBankMapper;
 import com.allen.mianshiya.model.dto.question.QuestionQueryRequest;
 import com.allen.mianshiya.model.dto.questionBank.QuestionBankQueryRequest;
-import com.allen.mianshiya.model.entity.Question;
 import com.allen.mianshiya.model.entity.QuestionBank;
 import com.allen.mianshiya.model.vo.QuestionBankVO;
 import com.allen.mianshiya.model.vo.UserVO;
@@ -172,8 +171,7 @@ public class QuestionBankServiceImpl extends ServiceImpl<QuestionBankMapper, Que
             questionQueryRequest.setQuestionBankId(id);
             questionQueryRequest.setCurrent(current);
             questionQueryRequest.setPageSize(pageSize);
-            Page<Question> questionPage = questionService.getQuestionPage(questionQueryRequest);
-            questionBankVO.setQuestionPage(questionPage);
+            questionBankVO.setQuestionPage(questionService.getQuestionVOPage(questionQueryRequest));
         }
 
         return questionBankVO;
