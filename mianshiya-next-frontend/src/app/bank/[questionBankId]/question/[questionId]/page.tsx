@@ -1,13 +1,12 @@
 "use server"
 import Title from "antd/es/typography/Title";
-
-import {getQuestionBankVoByIdUsingPost} from "@/api/questionBankController";
-import {Flex, Menu} from "antd";
+import { getQuestionBankVoByIdUsingPost } from "@/api/questionBankController";
+import { Flex, Menu } from "antd";
 import "./index.css";
-import {getQuestionVoByIdUsingGet} from "@/api/questionController";
+import { getQuestionVoByIdUsingGet } from "@/api/questionController";
 import React from "react";
 import Sider from "antd/es/layout/Sider";
-import {Content} from "antd/es/layout/layout";
+import { Content } from "antd/es/layout/layout";
 import QuestionCard from "@/components/QuestionCard";
 import Link from "next/link";
 
@@ -15,31 +14,29 @@ import Link from "next/link";
  * 题库题目详情页面
  * @constructor
  */
-export default async function BankQuestionPage({params}) {
-    const {questionBankId, questionId} = params;
+export default async function BankQuestionPage({ params }) {
+    const { questionBankId, questionId } = params;
 
-    let bank: undefined;
-    let question: undefined;
+    let bank, question;
 
     try {
-        const bankRes = await getQuestionBankVoByIdUsingPost({
-            id: questionBankId,
-            needQueryQuestionList: true,
-            pageSize: 100,
-            current: 1,
-        });
+        const [bankRes, questionRes] = await Promise.all([
+            getQuestionBankVoByIdUsingPost({
+                id: questionBankId,
+                needQueryQuestionList: true,
+                pageSize: 100,
+                current: 1,
+            }),
+            getQuestionVoByIdUsingGet({
+                id: questionId,
+            }),
+        ]);
+
         bank = bankRes.data;
-    } catch (e) {
-        console.error("获取题库详情失败，" + e.message);
-    }
-
-    try {
-        const questionRes = await getQuestionVoByIdUsingGet({
-            id: questionId
-        });
         question = questionRes.data;
     } catch (e) {
-        console.error("获取题目详情失败，" + e.message);
+        console.error("获取题库或题目详情失败，" + e.message);
+        return <div>获取详情失败，请刷新重试</div>;
     }
 
     if (!bank) {
@@ -59,12 +56,11 @@ export default async function BankQuestionPage({params}) {
         },
     );
 
-
     return (
         <div id="bankQuestionPage">
             <Flex gap={24}>
-                <Sider width={240} theme="light" style={{padding: "24px 0"}}>
-                    <Title level={4} style={{padding: "0 20px"}}>
+                <Sider width={240} theme="light" style={{ padding: "24px 0" }}>
+                    <Title level={4} style={{ padding: "0 20px" }}>
                         {bank.title}
                     </Title>
                     <Menu items={questionMenuItemList} selectedKeys={[questionId]} />
