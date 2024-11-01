@@ -6,9 +6,11 @@ import com.allen.mianshiya.mapper.QuestionBankQuestionMapper;
 import com.allen.mianshiya.model.entity.Question;
 import com.allen.mianshiya.model.entity.QuestionBank;
 import com.allen.mianshiya.model.entity.QuestionBankQuestion;
+import com.allen.mianshiya.model.vo.QuestionBankQuestionVO;
 import com.allen.mianshiya.service.QuestionBankQuestionService;
 import com.allen.mianshiya.service.QuestionBankService;
 import com.allen.mianshiya.service.QuestionService;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 题库题目服务实现
@@ -99,7 +102,24 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
     }
 
     /**
-     * 添加题目和题库关联记录
+     * 获取关联
+     *
+     * @param questionBankId 题库id
+     * @param questionId     题目id
+     * @return 关联
+     */
+    @Override
+    public List<QuestionBankQuestionVO> getQuestionBankQuestion(Long questionBankId, Long questionId) {
+        List<QuestionBankQuestion> questionList = this.list(new LambdaQueryWrapper<QuestionBankQuestion>()
+                .eq(questionBankId != null, QuestionBankQuestion::getQuestionBankId, questionBankId)
+                .eq(questionId != null, QuestionBankQuestion::getQuestionId, questionId)
+        );
+
+        return questionList.stream().map(QuestionBankQuestionVO::objToVo).collect(Collectors.toList());
+    }
+
+    /**
+     * 校验题目和题库
      *
      * @param questionBankId 题库id
      * @param questionId     题目id

@@ -11,7 +11,7 @@ const Forbidden = () => {
         subTitle="抱歉，你无权访问该页面"
         extra={
             <Button type="primary" href="/">
-                返回首页
+                返回主页
             </Button>
         }
     />

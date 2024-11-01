@@ -8,7 +8,9 @@ import com.allen.mianshiya.constant.UserConstant;
 import com.allen.mianshiya.exception.ThrowUtils;
 import com.allen.mianshiya.model.dto.questionBankQuestion.QuestionBankQuestionAddRequest;
 import com.allen.mianshiya.model.dto.questionBankQuestion.QuestionBankQuestionDeleteRequest;
+import com.allen.mianshiya.model.dto.questionBankQuestion.QuestionBankQuestionGetRequest;
 import com.allen.mianshiya.model.entity.User;
+import com.allen.mianshiya.model.vo.QuestionBankQuestionVO;
 import com.allen.mianshiya.service.QuestionBankQuestionService;
 import com.allen.mianshiya.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * 题库题目联系接口
@@ -73,6 +76,25 @@ public class QuestionBankQuestionController {
 
         return ResultUtils.success(questionBankQuestionService
                 .deleteQuestionBankQuestion(questionBankId, questionId, true));
+    }
+
+    /**
+     * 获取题库题目联系
+     *
+     * @param getRequest 获取题库题目联系请求
+     * @return Boolean
+     */
+    @GetMapping("/list")
+    public BaseResponse<List<QuestionBankQuestionVO>> getQuestionBankQuestion(QuestionBankQuestionGetRequest getRequest) {
+        // 校验
+        ThrowUtils.throwIf(getRequest == null , ErrorCode.PARAMS_ERROR);
+
+        Long questionBankId = getRequest.getQuestionBankId();
+        Long questionId = getRequest.getQuestionId();
+        ThrowUtils.throwIf(questionBankId == null && questionId == null , ErrorCode.PARAMS_ERROR);
+
+        return ResultUtils.success(questionBankQuestionService
+                .getQuestionBankQuestion(questionBankId, questionId));
     }
 
 }

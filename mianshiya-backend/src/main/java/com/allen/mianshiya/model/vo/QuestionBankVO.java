@@ -1,6 +1,5 @@
 package com.allen.mianshiya.model.vo;
 
-import com.allen.mianshiya.model.entity.Question;
 import com.allen.mianshiya.model.entity.QuestionBank;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.Data;
@@ -58,7 +57,7 @@ public class QuestionBankVO implements Serializable {
     /**
      * 题库里的题目列表(分页)
      */
-    private Page<Question> questionPage;
+    private Page<QuestionVO> questionPage;
 
     /**
      * 封装类转对象

@@ -41,11 +41,6 @@ import static com.allen.mianshiya.constant.UserConstant.USER_LOGIN_STATE;
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
     /**
-     * 盐值，混淆密码
-     */
-    public static final String SALT = "mianshiya2024";
-
-    /**
      * 添加用户
      *
      * @param user 用户信息
@@ -66,7 +61,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         synchronized (userAccount.intern()) {
             // 插入默认密码
             String encryptPassword = DigestUtils
-                    .md5DigestAsHex((SALT + UserConstant.DEFAULT_USER_PASSWORD).getBytes());
+                    .md5DigestAsHex((CommonConstant.SALT + UserConstant.DEFAULT_USER_PASSWORD).getBytes());
             user.setUserPassword(encryptPassword);
 
             // 插入默认数据
@@ -76,7 +71,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             if (StringUtils.isBlank(user.getUserAvatar())) {
                 user.setUserAvatar(UserConstant.DEFAULT_USER_AVATAR);
             }
-            user.setUserProfile(UserConstant.DEFAULT_USER_PROFILE);
+            if (StringUtils.isBlank(user.getUserProfile())) {
+                user.setUserProfile(UserConstant.DEFAULT_USER_PROFILE);
+            }
 
             // 调用方法
             boolean result = this.save(user);
@@ -156,7 +153,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             ThrowUtils.throwIf(count > 0, ErrorCode.PARAMS_ERROR, "账号重复");
 
             // 加密
-            String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
+            String encryptPassword = DigestUtils.md5DigestAsHex((CommonConstant.SALT + userPassword).getBytes());
 
             // 插入数据
             User user = new User();
@@ -185,7 +182,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         ThrowUtils.throwIf(userPassword.length() < 8, ErrorCode.PARAMS_ERROR, "用户密码过短");
 
         // 加密
-        String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
+        String encryptPassword = DigestUtils.md5DigestAsHex((CommonConstant.SALT + userPassword).getBytes());
 
         // 查询用户是否存在
         LambdaQueryWrapper<User> lambdaQueryWrapper = Wrappers.lambdaQuery(User.class)
@@ -329,20 +326,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         ThrowUtils.throwIf(userQueryRequest == null, ErrorCode.PARAMS_ERROR, "请求参数为空");
 
         // 统一处理字符串参数
-        Long idStr = userQueryRequest.getId();
-        String unionId = Objects.toString(userQueryRequest.getUnionId(), "");
-        String mpOpenId = Objects.toString(userQueryRequest.getMpOpenId(), "");
         String userName = Objects.toString(userQueryRequest.getUserName(), "");
+        String userAccount = Objects.toString(userQueryRequest.getUserAccount(), "");
         String userProfile = Objects.toString(userQueryRequest.getUserProfile(), "");
         String userRole = Objects.toString(userQueryRequest.getUserRole(), "");
-        String sortField = Objects.toString(userQueryRequest.getSortField(), "");
+        String sortField = SqlUtils.toUnderlineCase(Objects.toString(userQueryRequest.getSortField(), ""));
         String sortOrder = Objects.toString(userQueryRequest.getSortOrder(), "");
 
         // 创建查询包装器
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq(idStr != null, "id", idStr);
-        queryWrapper.eq(!unionId.isEmpty(), "union_id", unionId);
-        queryWrapper.eq(!mpOpenId.isEmpty(), "mp_open_id", mpOpenId);
+        queryWrapper.like(!userAccount.isEmpty(), "user_account", userAccount);
         queryWrapper.eq(!userRole.isEmpty(), "user_role", userRole);
         queryWrapper.like(!userProfile.isEmpty(), "user_profile", userProfile);
         queryWrapper.like(!userName.isEmpty(), "user_name", userName);
