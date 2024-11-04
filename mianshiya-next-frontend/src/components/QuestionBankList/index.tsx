@@ -9,7 +9,7 @@ interface Props {
 }
 
 /**
- * 痛苦列表组件
+ * 题库列表组件
  * @param props
  * @constructor
  */

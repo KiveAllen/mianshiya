@@ -1,5 +1,5 @@
 "use client";
-import {GithubFilled, LogoutOutlined, UserOutlined} from "@ant-design/icons";
+import {LogoutOutlined, UserOutlined} from "@ant-design/icons";
 import {ProLayout} from "@ant-design/pro-components";
 import {Dropdown, message} from "antd";
 import React from "react";
