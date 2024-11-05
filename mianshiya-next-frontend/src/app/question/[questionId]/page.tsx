@@ -14,21 +14,21 @@ export default async function QuestionPage({params}) {
 
     let question: undefined;
 
-    // try {
-    //     const questionRes = await getQuestionVoByIdUsingGet({
-    //         id: questionId
-    //     });
-    //     question = questionRes.data;
-    // } catch (e) {
-    //     console.error("获取题目详情失败，" + e.message);
-    // }
+    try {
+        const questionRes = await getQuestionVoByIdUsingGet({
+            id: questionId
+        });
+        question = questionRes.data;
+    } catch (e) {
+        console.error("获取题目详情失败，" + e.message);
+    }
 
     if (!question) {
         return <div>获取题目详情失败，请刷新重试</div>;
     }
 
     return (
-        <div id="questionPage">
+        <div id="questionPage" className={"max-width-content"}>
             <Content>
                 <QuestionCard question={question}></QuestionCard>
             </Content>

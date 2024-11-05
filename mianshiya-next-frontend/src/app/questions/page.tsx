@@ -27,7 +27,6 @@ export default async function QuestionsPage({searchParams}) {
         })
         questionList = questionRes.data.records ?? [];
         total = questionRes.data.total ?? 0;
-
     } catch (e) {
         console.error('获取题目列表失败，' + e.message);
     }

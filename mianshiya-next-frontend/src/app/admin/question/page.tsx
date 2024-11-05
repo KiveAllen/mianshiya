@@ -97,6 +97,12 @@ const QuestionAdminPage: React.FC = () => {
             valueType: "text",
             hideInSearch: true,
             width: 640,
+            render: (_,record) => {
+                // 控制字符数量
+                return <div>
+                    {record.answer.length > 90 ? record.answer.slice(0, 90) + "..." : record.answer}
+                </div>
+            },
             renderFormItem: (_, {type, defaultRender, formItemProps, fieldProps, ...rest}, form,
             ) => {
                 return (

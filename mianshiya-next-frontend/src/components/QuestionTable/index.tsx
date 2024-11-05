@@ -40,7 +40,7 @@ const QuestionsTable: React.FC = (props: Props) => {
             dataIndex: "title",
             valueType: "text",
             render: (_, record) => {
-                return <Link href={`/questions/${record.id}`}>{record.title}</Link>
+                return <Link href={`/question/${record.id}`}>{record.title}</Link>
             }
         },
         {
