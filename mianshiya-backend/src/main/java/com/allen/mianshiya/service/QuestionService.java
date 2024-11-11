@@ -6,6 +6,8 @@ import com.allen.mianshiya.model.vo.QuestionVO;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+
 /**
  * 题库题目服务
  */
@@ -58,5 +60,20 @@ public interface QuestionService extends IService<Question> {
      * @return 封装类分页
      */
     Page<QuestionVO> getQuestionVOPage(QuestionQueryRequest questionQueryRequest);
+
+    /**
+     * 从 ES 查询题目
+     *
+     * @param questionQueryRequest 查询条件
+     * @return 分页结果
+     */
+    Page<Question> searchFromEs(QuestionQueryRequest questionQueryRequest);
+
+    /**
+     * 批量删除题目
+     *
+     * @param questionIdList 题目id列表
+     */
+    Boolean batchDeleteQuestions(List<Long> questionIdList);
 
 }

@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * 更新题库题目请求
+ * 更新题目请求
  */
 @Data
 public class QuestionUpdateRequest implements Serializable {

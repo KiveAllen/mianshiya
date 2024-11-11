@@ -57,6 +57,7 @@ const UpdateModal: React.FC<Props> = (props) => {
             onCancel={() => {
                 onCancel?.();
             }}
+               width={1200}
         >
             <ProTable
                 type="form"

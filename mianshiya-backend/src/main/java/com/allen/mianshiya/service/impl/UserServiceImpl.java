@@ -3,6 +3,7 @@ package com.allen.mianshiya.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import com.allen.mianshiya.common.ErrorCode;
 import com.allen.mianshiya.constant.CommonConstant;
+import com.allen.mianshiya.constant.RedisConstant;
 import com.allen.mianshiya.constant.UserConstant;
 import com.allen.mianshiya.exception.BusinessException;
 import com.allen.mianshiya.exception.ThrowUtils;
@@ -23,11 +24,15 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
 import org.apache.commons.lang3.StringUtils;
+import org.redisson.api.RBitSet;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,6 +44,9 @@ import static com.allen.mianshiya.constant.UserConstant.USER_LOGIN_STATE;
 @Service
 @Slf4j
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
+
+    @Resource
+    RedissonClient redissonClient;
 
     /**
      * 添加用户
@@ -347,4 +355,49 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         return queryWrapper;
     }
+
+    /**
+     * 用户签到
+     *
+     * @param userId 用户id
+     * @return 是否签到成功
+     */
+    @Override
+    public boolean addUserSingIn(long userId) {
+        LocalDate date = LocalDate.now();
+        String key = RedisConstant.getUserSignInRedisKey(date.getYear(), userId);
+        // 获取 Redis 的 BitMap
+        RBitSet signInBitSet = redissonClient.getBitSet(key);
+        // 获取当前日期的索引, 读取当前日期是一年中的第几天, 从 1 开始
+        int offset = date.getDayOfYear();
+        // 查询当天有没有签到
+        if (!signInBitSet.get(offset)) {
+            signInBitSet.set(offset, true);
+            return true;
+        }
+        return true;
+    }
+
+    @Override
+    public List<Integer> getUserSignInRecord(long userId, Integer year) {
+        if (year == null) {
+            LocalDate date = LocalDate.now();
+            year = date.getYear();
+        }
+        String key = RedisConstant.getUserSignInRedisKey(year, userId);
+        // 获取 Redis 的 BitMap
+        RBitSet signInBitSet = redissonClient.getBitSet(key);
+        // ** 加载 BitSet 到内存中，避免 Redis 频繁的访问**
+        BitSet bitSet = signInBitSet.asBitSet();
+        // 改为签到的日期列表 List
+        List<Integer> result = new LinkedList<>();
+        // ** 通过索引 0 开始查找下一个被设置为 1 的位 （使用的方法是位运算的方式，比普通的for循环效率大大提升了）
+        int index = bitSet.nextSetBit(0);
+        while (index > 0) {
+            result.add(index);
+            index = bitSet.nextSetBit(index + 1);
+        }
+        return result;
+    }
+
 }

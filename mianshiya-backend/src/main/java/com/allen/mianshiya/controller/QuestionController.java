@@ -9,6 +9,7 @@ import com.allen.mianshiya.common.ResultUtils;
 import com.allen.mianshiya.constant.UserConstant;
 import com.allen.mianshiya.exception.ThrowUtils;
 import com.allen.mianshiya.model.dto.question.QuestionAddRequest;
+import com.allen.mianshiya.model.dto.question.QuestionBatchDeleteRequest;
 import com.allen.mianshiya.model.dto.question.QuestionQueryRequest;
 import com.allen.mianshiya.model.dto.question.QuestionUpdateRequest;
 import com.allen.mianshiya.model.entity.Question;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.stream.Collectors;
 
 /**
  * 题目接口
@@ -78,6 +80,19 @@ public class QuestionController {
         // 检验请求是否存在
         ThrowUtils.throwIf(deleteRequest == null || deleteRequest.getId() <= 0, ErrorCode.PARAMS_ERROR);
         return ResultUtils.success(questionService.deleteQuestion(deleteRequest.getId()));
+    }
+
+    /**
+     * 批量删除题目（仅管理员可用）
+     * @param batchDeleteRequest 批量删除参数
+     * @return 是否删除成功
+     */
+    @PostMapping("/batch/delete")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Boolean> batchDeleteQuestions(@RequestBody QuestionBatchDeleteRequest batchDeleteRequest) {
+        // 检验请求是否存在
+        ThrowUtils.throwIf(batchDeleteRequest == null || batchDeleteRequest.getIdList() == null, ErrorCode.PARAMS_ERROR);
+        return ResultUtils.success(questionService.batchDeleteQuestions(batchDeleteRequest.getIdList()));
     }
 
     /**
@@ -156,6 +171,24 @@ public class QuestionController {
 
         return ResultUtils.success(questionService.getQuestionVOPage(questionQueryRequest));
     }
+
+    /**
+     * 搜索题目(ES)
+     *
+     * @param questionQueryRequest 查询条件
+     * @return Page<QuestionVO> (题目列表)
+     */
+    @PostMapping("/search/page/vo")
+    public BaseResponse<Page<QuestionVO>> searchQuestionVOByPage(@RequestBody QuestionQueryRequest questionQueryRequest) {
+        long size = questionQueryRequest.getPageSize();
+        // 限制爬虫
+        ThrowUtils.throwIf(size > 200, ErrorCode.PARAMS_ERROR);
+        Page<Question> questionPage = questionService.searchFromEs(questionQueryRequest);
+        Page<QuestionVO> questionVOPage = new Page<>(questionPage.getCurrent(), questionPage.getSize(), questionPage.getTotal());
+        questionVOPage.setRecords(questionPage.getRecords().stream().map(QuestionVO::objToVo).collect(Collectors.toList()));
+        return ResultUtils.success(questionVOPage);
+    }
+
 
     // endregion
 }

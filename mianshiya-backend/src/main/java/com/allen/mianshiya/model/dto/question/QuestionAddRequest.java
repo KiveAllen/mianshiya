@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * 创建题库题目请求
+ * 添加题目请求
  */
 @Data
 public class QuestionAddRequest implements Serializable {
