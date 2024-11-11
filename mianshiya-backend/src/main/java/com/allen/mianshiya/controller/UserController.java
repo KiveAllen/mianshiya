@@ -119,7 +119,7 @@ public class UserController {
      * 获取用户签到记录
      *
      * @param year    年份（为空表示当前年份）
-     * @param request
+     * @param request 登录态
      * @return 签到记录映射
      */
     @GetMapping("/get/sign_in")

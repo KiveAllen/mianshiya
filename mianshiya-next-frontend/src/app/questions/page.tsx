@@ -1,7 +1,7 @@
 "use server"
 
 import "./index.css";
-import {listQuestionVoByPageUsingPost} from "@/api/questionController";
+import {searchQuestionVoByPageUsingPost} from "@/api/questionController";
 import {Flex} from "antd";
 import Title from "antd/es/typography/Title";
 import QuestionsTable from "@/components/QuestionTable";
@@ -19,8 +19,8 @@ export default async function QuestionsPage({searchParams}) {
     let total = 0;
 
     try {
-        const questionRes = await listQuestionVoByPageUsingPost({
-            title: searchText,
+        const questionRes = await searchQuestionVoByPageUsingPost({
+            searchText,
             pageSize: 12,
             sortField: 'createTime',
             sortOrder: 'descend',
