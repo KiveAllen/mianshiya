@@ -176,7 +176,7 @@ public class QuestionController {
      * 搜索题目(ES)
      *
      * @param questionQueryRequest 查询条件
-     * @return
+     * @return Page<QuestionVO> (题目列表)
      */
     @PostMapping("/search/page/vo")
     public BaseResponse<Page<QuestionVO>> searchQuestionVOByPage(@RequestBody QuestionQueryRequest questionQueryRequest) {
