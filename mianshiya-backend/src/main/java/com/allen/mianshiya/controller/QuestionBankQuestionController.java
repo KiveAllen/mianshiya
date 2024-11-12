@@ -6,9 +6,7 @@ import com.allen.mianshiya.common.ErrorCode;
 import com.allen.mianshiya.common.ResultUtils;
 import com.allen.mianshiya.constant.UserConstant;
 import com.allen.mianshiya.exception.ThrowUtils;
-import com.allen.mianshiya.model.dto.questionBankQuestion.QuestionBankQuestionAddRequest;
-import com.allen.mianshiya.model.dto.questionBankQuestion.QuestionBankQuestionDeleteRequest;
-import com.allen.mianshiya.model.dto.questionBankQuestion.QuestionBankQuestionGetRequest;
+import com.allen.mianshiya.model.dto.questionBankQuestion.*;
 import com.allen.mianshiya.model.entity.User;
 import com.allen.mianshiya.model.vo.QuestionBankQuestionVO;
 import com.allen.mianshiya.service.QuestionBankQuestionService;
@@ -87,14 +85,54 @@ public class QuestionBankQuestionController {
     @GetMapping("/list")
     public BaseResponse<List<QuestionBankQuestionVO>> getQuestionBankQuestion(QuestionBankQuestionGetRequest getRequest) {
         // 校验
-        ThrowUtils.throwIf(getRequest == null , ErrorCode.PARAMS_ERROR);
+        ThrowUtils.throwIf(getRequest == null, ErrorCode.PARAMS_ERROR);
 
         Long questionBankId = getRequest.getQuestionBankId();
         Long questionId = getRequest.getQuestionId();
-        ThrowUtils.throwIf(questionBankId == null && questionId == null , ErrorCode.PARAMS_ERROR);
+        ThrowUtils.throwIf(questionBankId == null && questionId == null, ErrorCode.PARAMS_ERROR);
 
         return ResultUtils.success(questionBankQuestionService
                 .getQuestionBankQuestion(questionBankId, questionId));
     }
 
+    /**
+     * 批量添加题库题目联系
+     */
+    @PostMapping("/batch/add")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Boolean> batchAddQuestionsToBank(@RequestBody QuestionBankQuestionBatchAddRequest batchAddRequest,
+                                                         HttpServletRequest request) {
+        // 校验
+        ThrowUtils.throwIf(batchAddRequest == null, ErrorCode.PARAMS_ERROR);
+
+        // 用户
+        User loginUser = userService.getLoginUser(request);
+
+        // 调用服务
+        questionBankQuestionService.batchAddQuestionsToBank(
+                batchAddRequest.getQuestionId(),
+                batchAddRequest.getQuestionBankId(),
+                loginUser
+        );
+
+        return ResultUtils.success(true);
+    }
+
+    /**
+     * 批量删除题库题目联系
+     */
+    @PostMapping("/batch/delete")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Boolean> batchRemoveQuestionsFromBank(@RequestBody QuestionBankQuestionBatchDeleteRequest batchDeleteRequest) {
+        // 校验
+        ThrowUtils.throwIf(batchDeleteRequest == null, ErrorCode.PARAMS_ERROR);
+
+        // 调用服务
+        questionBankQuestionService.batchRemoveQuestionsFromBank(
+                batchDeleteRequest.getQuestionId(),
+                batchDeleteRequest.getQuestionBankId()
+        );
+
+        return ResultUtils.success(true);
+    }
 }

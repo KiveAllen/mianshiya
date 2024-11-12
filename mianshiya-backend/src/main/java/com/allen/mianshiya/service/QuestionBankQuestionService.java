@@ -2,6 +2,7 @@ package com.allen.mianshiya.service;
 
 import com.allen.mianshiya.model.entity.Question;
 import com.allen.mianshiya.model.entity.QuestionBankQuestion;
+import com.allen.mianshiya.model.entity.User;
 import com.allen.mianshiya.model.vo.QuestionBankQuestionVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -42,4 +43,21 @@ public interface QuestionBankQuestionService extends IService<QuestionBankQuesti
      * @return 关联
      */
     List<QuestionBankQuestionVO> getQuestionBankQuestion(Long questionBankId, Long questionId);
+
+    /**
+     * 批量添加题目到题库
+     *
+     * @param questionIdList 题目id列表
+     * @param questionBankId 题库id
+     * @param loginUser      登录用户
+     */
+    void batchAddQuestionsToBank(List<Long> questionIdList, Long questionBankId, User loginUser);
+
+    /**
+     * 批量移除题目
+     *
+     * @param questionIdList 题目id列表
+     * @param questionBankId 题库id
+     */
+    void batchRemoveQuestionsFromBank(List<Long> questionIdList, Long questionBankId);
 }
