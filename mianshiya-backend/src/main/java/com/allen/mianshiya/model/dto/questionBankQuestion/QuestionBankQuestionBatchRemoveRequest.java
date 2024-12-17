@@ -9,7 +9,7 @@ import java.util.List;
  * 批量创建题库题目请求
  */
 @Data
-public class QuestionBankQuestionBatchDeleteRequest implements Serializable {
+public class QuestionBankQuestionBatchRemoveRequest implements Serializable {
 
     private static final long serialVersionUID = 1L;
     /**
@@ -19,5 +19,5 @@ public class QuestionBankQuestionBatchDeleteRequest implements Serializable {
     /**
      * 题目id
      */
-    private List<Long> questionId;
+    private List<Long> questionIdList;
 }

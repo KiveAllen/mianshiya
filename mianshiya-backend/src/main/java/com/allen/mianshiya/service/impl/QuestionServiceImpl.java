@@ -379,7 +379,6 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             boolean result = this.removeById(questionId);
             ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "删除题目失败");
             // 移除题目题库关系
-            // 构造查询
             LambdaQueryWrapper<QuestionBankQuestion> lambdaQueryWrapper = Wrappers.lambdaQuery(QuestionBankQuestion.class)
                     .eq(QuestionBankQuestion::getQuestionId, questionId);
             result = questionBankQuestionService.remove(lambdaQueryWrapper);

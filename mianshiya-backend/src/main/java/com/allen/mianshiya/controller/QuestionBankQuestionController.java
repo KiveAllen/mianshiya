@@ -98,7 +98,7 @@ public class QuestionBankQuestionController {
     /**
      * 批量添加题库题目联系
      */
-    @PostMapping("/batch/add")
+    @PostMapping("/add/batch")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> batchAddQuestionsToBank(@RequestBody QuestionBankQuestionBatchAddRequest batchAddRequest,
                                                          HttpServletRequest request) {
@@ -110,7 +110,7 @@ public class QuestionBankQuestionController {
 
         // 调用服务
         questionBankQuestionService.batchAddQuestionsToBank(
-                batchAddRequest.getQuestionId(),
+                batchAddRequest.getQuestionIdList(),
                 batchAddRequest.getQuestionBankId(),
                 loginUser
         );
@@ -121,15 +121,15 @@ public class QuestionBankQuestionController {
     /**
      * 批量删除题库题目联系
      */
-    @PostMapping("/batch/delete")
+    @PostMapping("/remove/batch")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Boolean> batchRemoveQuestionsFromBank(@RequestBody QuestionBankQuestionBatchDeleteRequest batchDeleteRequest) {
+    public BaseResponse<Boolean> batchRemoveQuestionsFromBank(@RequestBody QuestionBankQuestionBatchRemoveRequest batchDeleteRequest) {
         // 校验
         ThrowUtils.throwIf(batchDeleteRequest == null, ErrorCode.PARAMS_ERROR);
 
         // 调用服务
         questionBankQuestionService.batchRemoveQuestionsFromBank(
-                batchDeleteRequest.getQuestionId(),
+                batchDeleteRequest.getQuestionIdList(),
                 batchDeleteRequest.getQuestionBankId()
         );
 

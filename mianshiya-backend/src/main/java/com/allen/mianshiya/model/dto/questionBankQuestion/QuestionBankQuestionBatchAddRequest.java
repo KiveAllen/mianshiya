@@ -19,5 +19,5 @@ public class QuestionBankQuestionBatchAddRequest implements Serializable {
     /**
      * 题目id
      */
-    private List<Long> questionId;
+    private List<Long> questionIdList;
 }

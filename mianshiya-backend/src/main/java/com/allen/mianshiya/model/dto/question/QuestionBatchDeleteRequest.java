@@ -16,5 +16,5 @@ public class QuestionBatchDeleteRequest implements Serializable {
     /**
      * id列表
      */
-    private List<Long> idList;
+    private List<Long> questionIdList;
 }
