@@ -54,6 +54,15 @@ public interface QuestionBankQuestionService extends IService<QuestionBankQuesti
     void batchAddQuestionsToBank(List<Long> questionIdList, Long questionBankId, User loginUser);
 
     /**
+     * 批量添加题目到题库
+     *
+     * @param questionBankQuestions 题库题目
+     */
+    void batchAddQuestionsToBankInner(List<QuestionBankQuestion> questionBankQuestions);
+
+
+
+    /**
      * 批量移除题目
      *
      * @param questionIdList 题目id列表
