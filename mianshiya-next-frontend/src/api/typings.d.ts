@@ -307,6 +307,16 @@ declare namespace API {
     questionId?: number;
   };
 
+    type QuestionBankQuestionBatchAddRequest = {
+        questionBankId?: number;
+        questionIdList?: number[];
+    };
+
+    type QuestionBankQuestionBatchRemoveRequest = {
+        questionBankId?: number;
+        questionIdList?: number[];
+    };
+
   type QuestionBankQuestionDeleteRequest = {
     questionBankId?: number;
     questionId?: number;
@@ -336,6 +346,10 @@ declare namespace API {
     user?: UserVO;
     viewNum?: number;
   };
+
+    type QuestionBatchDeleteRequest = {
+        questionIdList?: number[];
+    };
 
   type QuestionQueryRequest = {
     content?: string;

@@ -169,7 +169,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
                 Set<Long> questionIdSet = questionList.stream().map(Question::getId).collect(Collectors.toSet());
                 // 复用原有题目表的查询条件
                 queryWrapper.in("id", questionIdSet);
-            }else {
+            } else {
                 return new Page<>(current, size);
             }
         }
@@ -379,11 +379,13 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             boolean result = this.removeById(questionId);
             ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "删除题目失败");
             // 移除题目题库关系
-            // 构造查询
             LambdaQueryWrapper<QuestionBankQuestion> lambdaQueryWrapper = Wrappers.lambdaQuery(QuestionBankQuestion.class)
                     .eq(QuestionBankQuestion::getQuestionId, questionId);
-            result = questionBankQuestionService.remove(lambdaQueryWrapper);
-            ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "删除题目题库关联失败");
+            List<QuestionBankQuestion> list = questionBankQuestionService.list(lambdaQueryWrapper);
+            if (CollUtil.isNotEmpty(list)) {
+                result = questionBankQuestionService.remove(lambdaQueryWrapper);
+                ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "删除题目题库关联失败");
+            }
         }
         return true;
     }

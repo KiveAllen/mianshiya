@@ -12,8 +12,8 @@ export async function addQuestionUsingPost(
     headers: {
       "Content-Type": "application/json",
     },
-    data: body,
-    ...(options || {}),
+      data: body,
+      ...(options || {}),
   });
 }
 
@@ -30,6 +30,21 @@ export async function deleteQuestionUsingDelete(
     data: body,
     ...(options || {}),
   });
+}
+
+/** batchDeleteQuestions POST /api/question/delete/batch */
+export async function batchDeleteQuestionsUsingPost(
+    body: API.QuestionBatchDeleteRequest,
+    options?: { [key: string]: any }
+) {
+    return request<API.BaseResponseBoolean_>("/api/question/delete/batch", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        data: body,
+        ...(options || {}),
+    });
 }
 
 /** getQuestionById GET /api/question/get */
@@ -103,11 +118,11 @@ export async function searchQuestionVoByPageUsingPost(
   return request<API.BaseResponsePageQuestionVO_>(
       "/api/question/search/page/vo",
       {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        data: body,
+          method: "POST",
+          headers: {
+              "Content-Type": "application/json",
+          },
+          data: body,
       ...(options || {}),
     }
   );

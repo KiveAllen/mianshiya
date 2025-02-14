@@ -87,12 +87,12 @@ public class QuestionController {
      * @param batchDeleteRequest 批量删除参数
      * @return 是否删除成功
      */
-    @PostMapping("/batch/delete")
+    @PostMapping("/delete/batch")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> batchDeleteQuestions(@RequestBody QuestionBatchDeleteRequest batchDeleteRequest) {
         // 检验请求是否存在
-        ThrowUtils.throwIf(batchDeleteRequest == null || batchDeleteRequest.getIdList() == null, ErrorCode.PARAMS_ERROR);
-        return ResultUtils.success(questionService.batchDeleteQuestions(batchDeleteRequest.getIdList()));
+        ThrowUtils.throwIf(batchDeleteRequest == null || batchDeleteRequest.getQuestionIdList() == null, ErrorCode.PARAMS_ERROR);
+        return ResultUtils.success(questionService.batchDeleteQuestions(batchDeleteRequest.getQuestionIdList()));
     }
 
     /**
