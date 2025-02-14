@@ -160,3 +160,10 @@ knife4j:
         api-rule: package
         api-rule-resources:
           - com.allen.mianshiya.controller
+# 热 key 探测
+hotkey:
+  app-name: mianshiya
+  caffeine-size: 10000
+  push-period: 1000
+  etcd-server: http://localhost:2379
+

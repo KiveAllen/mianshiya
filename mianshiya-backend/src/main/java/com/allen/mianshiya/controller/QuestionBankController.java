@@ -16,6 +16,7 @@ import com.allen.mianshiya.model.vo.QuestionBankVO;
 import com.allen.mianshiya.service.QuestionBankService;
 import com.allen.mianshiya.service.UserService;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.jd.platform.hotkey.client.callback.JdHotKeyStore;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
@@ -84,7 +85,7 @@ public class QuestionBankController {
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> updateQuestionBank(@RequestBody QuestionBankUpdateRequest questionBankUpdateRequest) {
         ThrowUtils.throwIf(questionBankUpdateRequest == null
-                           || questionBankUpdateRequest.getId() <= 0, ErrorCode.PARAMS_ERROR);
+                || questionBankUpdateRequest.getId() <= 0, ErrorCode.PARAMS_ERROR);
 
         QuestionBank questionBank = new QuestionBank();
         BeanUtils.copyProperties(questionBankUpdateRequest, questionBank);
@@ -133,13 +134,25 @@ public class QuestionBankController {
         int current = questionBankQueryRequest.getCurrent();
         int pageSize = questionBankQueryRequest.getPageSize();
         ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
+
+        // hotkey
+        String key = "bank_detail_" + id;
+        // 是热key的情况
+        if (JdHotKeyStore.isHotKey(key)) {
+            // 从本地缓存获取
+            Object cachedQuestionBankVO = JdHotKeyStore.get(key);
+            if (cachedQuestionBankVO != null) {
+                return ResultUtils.success((QuestionBankVO) cachedQuestionBankVO);
+            }
+        }
+
         // 获取封装类
-        return ResultUtils.success(questionBankService.getQuestionBankVO(
-                id,
-                needQueryQuestionList,
-                current,
-                pageSize
-        ));
+        QuestionBankVO questionBankVO = questionBankService.getQuestionBankVO(id, needQueryQuestionList, current, pageSize);
+
+        // 设置本地缓存
+        JdHotKeyStore.smartSet(key, questionBankVO);
+
+        return ResultUtils.success(questionBankVO);
     }
 
     /**
