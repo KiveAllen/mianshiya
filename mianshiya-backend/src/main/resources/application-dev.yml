@@ -96,7 +96,7 @@ spring:
 
   # Elasticsearch 配置
   elasticsearch:
-    uris: http://localhost:9200
+    uris: http://localhost:9201
   #    username: root
   #    password: 123456
   # 文件上传
