@@ -1,9 +1,9 @@
 package com.allen.mianshiya.controller;
 
+import cn.dev33.satoken.annotation.SaCheckRole;
 import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.alibaba.csp.sentinel.slots.block.degrade.DegradeException;
-import com.allen.mianshiya.annotation.AuthCheck;
 import com.allen.mianshiya.common.BaseResponse;
 import com.allen.mianshiya.common.DeleteRequest;
 import com.allen.mianshiya.common.ErrorCode;
@@ -51,7 +51,8 @@ public class QuestionBankController {
      * @return 创建成功
      */
     @PostMapping("/add")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    //    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @SaCheckRole(UserConstant.ADMIN_ROLE)
     public BaseResponse<Long> addQuestionBank(@RequestBody QuestionBankAddRequest questionBankAddRequest,
                                               HttpServletRequest request) {
         ThrowUtils.throwIf(questionBankAddRequest == null, ErrorCode.PARAMS_ERROR);
@@ -72,7 +73,8 @@ public class QuestionBankController {
      * @return 删除成功
      */
     @DeleteMapping("/delete")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    //    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @SaCheckRole(UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> deleteQuestionBank(@RequestBody DeleteRequest deleteRequest) {
         ThrowUtils.throwIf(deleteRequest == null || deleteRequest.getId() <= 0, ErrorCode.PARAMS_ERROR);
         return ResultUtils.success(questionBankService.deleteQuestionBank(deleteRequest.getId()));
@@ -85,7 +87,8 @@ public class QuestionBankController {
      * @return 更新成功
      */
     @PostMapping("/update")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    //    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @SaCheckRole(UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> updateQuestionBank(@RequestBody QuestionBankUpdateRequest questionBankUpdateRequest) {
         ThrowUtils.throwIf(questionBankUpdateRequest == null
                 || questionBankUpdateRequest.getId() <= 0, ErrorCode.PARAMS_ERROR);
@@ -103,7 +106,8 @@ public class QuestionBankController {
      * @return 分页列表
      */
     @PostMapping("/list/page")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    //    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @SaCheckRole(UserConstant.ADMIN_ROLE)
     public BaseResponse<Page<QuestionBank>> listQuestionBankByPage(@RequestBody QuestionBankQueryRequest questionBankQueryRequest) {
         ThrowUtils.throwIf(questionBankQueryRequest == null, ErrorCode.PARAMS_ERROR);
         return ResultUtils.success(questionBankService.listQuestionBankByPage(questionBankQueryRequest));

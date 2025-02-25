@@ -1,5 +1,6 @@
 package com.allen.mianshiya.controller;
 
+import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.csp.sentinel.Entry;
 import com.alibaba.csp.sentinel.EntryType;
@@ -7,7 +8,6 @@ import com.alibaba.csp.sentinel.SphU;
 import com.alibaba.csp.sentinel.Tracer;
 import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.alibaba.csp.sentinel.slots.block.degrade.DegradeException;
-import com.allen.mianshiya.annotation.AuthCheck;
 import com.allen.mianshiya.common.BaseResponse;
 import com.allen.mianshiya.common.DeleteRequest;
 import com.allen.mianshiya.common.ErrorCode;
@@ -56,7 +56,8 @@ public class QuestionController {
      * @return 新写入的数据 id
      */
     @PostMapping("/add")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+//    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @SaCheckRole(UserConstant.ADMIN_ROLE)
     public BaseResponse<Long> addQuestion(@RequestBody QuestionAddRequest questionAddRequest, HttpServletRequest request) {
         // 检验请求是否存在
         ThrowUtils.throwIf(questionAddRequest == null, ErrorCode.PARAMS_ERROR);
@@ -81,7 +82,8 @@ public class QuestionController {
      * @return 删除是否成功
      */
     @DeleteMapping("/delete")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    //    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @SaCheckRole(UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> deleteQuestion(@RequestBody DeleteRequest deleteRequest) {
         // 检验请求是否存在
         ThrowUtils.throwIf(deleteRequest == null || deleteRequest.getId() <= 0, ErrorCode.PARAMS_ERROR);
@@ -95,7 +97,8 @@ public class QuestionController {
      * @return 是否删除成功
      */
     @PostMapping("/delete/batch")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    //    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @SaCheckRole(UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> batchDeleteQuestions(@RequestBody QuestionBatchDeleteRequest batchDeleteRequest) {
         // 检验请求是否存在
         ThrowUtils.throwIf(batchDeleteRequest == null || batchDeleteRequest.getQuestionIdList() == null, ErrorCode.PARAMS_ERROR);
@@ -109,7 +112,8 @@ public class QuestionController {
      * @return 是否更新成功
      */
     @PutMapping("/update")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    //    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @SaCheckRole(UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> updateQuestion(@RequestBody QuestionUpdateRequest questionUpdateRequest) {
         ThrowUtils.throwIf(questionUpdateRequest == null || questionUpdateRequest.getId() <= 0, ErrorCode.PARAMS_ERROR);
         Question question = new Question();
@@ -125,7 +129,8 @@ public class QuestionController {
      * @return Question
      */
     @GetMapping("/get")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    //    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @SaCheckRole(UserConstant.ADMIN_ROLE)
     public BaseResponse<Question> getQuestionById(@RequestParam Long id) {
         ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
         // 查询数据库
@@ -142,7 +147,8 @@ public class QuestionController {
      * @return Page<Question>
      */
     @PostMapping("/list/page")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    //    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @SaCheckRole(UserConstant.ADMIN_ROLE)
     public BaseResponse<Page<Question>> listQuestionByPage(@RequestBody QuestionQueryRequest questionQueryRequest) {
         return ResultUtils.success(questionService.getQuestionPage(questionQueryRequest));
     }
@@ -198,7 +204,7 @@ public class QuestionController {
             entry = SphU.entry("listQuestionVOByPage", EntryType.IN, 1, remoteAddress);
             return ResultUtils.success(questionService.getQuestionVOPage(questionQueryRequest));
         } catch (Throwable ex) {
-            if(!BlockException.isBlockException(ex)){
+            if (!BlockException.isBlockException(ex)) {
                 Tracer.trace(ex);
             }
             if (ex instanceof DegradeException) {

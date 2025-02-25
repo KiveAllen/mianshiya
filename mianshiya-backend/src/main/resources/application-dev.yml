@@ -91,8 +91,21 @@ spring:
     database: 1
     host: localhost
     port: 6379
-    timeout: 5000
-  #    password: 123456
+    # Redis服务器连接密码（默认为空）
+    # password:
+    # 连接超时时间
+    timeout: 10s
+    lettuce:
+      pool:
+        # 连接池最大连接数
+        max-active: 200
+        # 连接池最大阻塞等待时间（使用负值表示没有限制）
+        max-wait: -1ms
+        # 连接池中的最大空闲连接
+        max-idle: 10
+        # 连接池中的最小空闲连接
+        min-idle: 0
+
 
   # Elasticsearch 配置
   elasticsearch:
@@ -113,6 +126,24 @@ server:
     session:
       cookie:
         max-age: 2592000
+
+# Sa-Token 配置
+sa-token:
+  # token 名称（同时也是 cookie 名称）
+  token-name: satoken
+  # token 有效期（单位：秒） 默认30天，-1 代表永久有效
+  timeout: 2592000
+  # token 最低活跃频率（单位：秒），如果 token 超过此时间没有访问系统就会被冻结，默认-1 代表不限制，永不冻结
+  active-timeout: -1
+  # 是否允许同一账号多地同时登录 （为 true 时允许一起登录, 为 false 时新登录挤掉旧登录）
+  is-concurrent: false
+  # 在多人登录同一账号时，是否共用一个 token （为 true 时所有登录共用一个 token, 为 false 时每次登录新建一个 token）
+  is-share: true
+  # token 风格（默认可取值：uuid、simple-uuid、random-32、random-64、random-128、tik）
+  token-style: uuid
+  # 是否输出操作日志
+  is-log: true
+
 mybatis-plus:
   configuration:
     # 驼峰式转换
@@ -123,6 +154,7 @@ mybatis-plus:
       logic-delete-field: is_delete # 全局逻辑删除的实体字段名
       logic-delete-value: 1 # 逻辑已删除值（默认为 1）
       logic-not-delete-value: 0 # 逻辑未删除值（默认为 0）
+
 # 微信相关
 wx:
   # 微信公众平台
@@ -142,6 +174,7 @@ wx:
   open:
     appId: xxx
     appSecret: xxx
+
 # 对象存储
 cos:
   client:
@@ -149,6 +182,7 @@ cos:
     secretKey: xxx
     region: xxx
     bucket: xxx
+
 # 接口文档配置
 knife4j:
   enable: true
@@ -160,7 +194,8 @@ knife4j:
         api-rule: package
         api-rule-resources:
           - com.allen.mianshiya.controller
-# 热 key 探测
+          -
+          # 热 key 探测
 hotkey:
   app-name: mianshiya
   caffeine-size: 10000

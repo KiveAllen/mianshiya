@@ -1,6 +1,6 @@
 package com.allen.mianshiya.controller;
 
-import com.allen.mianshiya.annotation.AuthCheck;
+import cn.dev33.satoken.annotation.SaCheckRole;
 import com.allen.mianshiya.common.BaseResponse;
 import com.allen.mianshiya.common.ErrorCode;
 import com.allen.mianshiya.common.ResultUtils;
@@ -39,7 +39,8 @@ public class QuestionBankQuestionController {
      * @return Boolean
      */
     @PostMapping("/add")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    //    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @SaCheckRole(UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> addQuestionBankQuestion(@RequestBody QuestionBankQuestionAddRequest addRequest,
                                                          HttpServletRequest request) {
         // 校验
@@ -64,7 +65,8 @@ public class QuestionBankQuestionController {
      * @return Boolean
      */
     @DeleteMapping("/delete")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    //    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @SaCheckRole(UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> deleteQuestionBankQuestion(@RequestBody QuestionBankQuestionDeleteRequest deleteRequest) {
         // 校验
         ThrowUtils.throwIf(deleteRequest == null, ErrorCode.PARAMS_ERROR);
@@ -99,7 +101,8 @@ public class QuestionBankQuestionController {
      * 批量添加题库题目联系
      */
     @PostMapping("/add/batch")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    //    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @SaCheckRole(UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> batchAddQuestionsToBank(@RequestBody QuestionBankQuestionBatchAddRequest batchAddRequest,
                                                          HttpServletRequest request) {
         // 校验
@@ -122,7 +125,8 @@ public class QuestionBankQuestionController {
      * 批量删除题库题目联系
      */
     @PostMapping("/remove/batch")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    //    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @SaCheckRole(UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> batchRemoveQuestionsFromBank(@RequestBody QuestionBankQuestionBatchRemoveRequest batchDeleteRequest) {
         // 校验
         ThrowUtils.throwIf(batchDeleteRequest == null, ErrorCode.PARAMS_ERROR);

@@ -1,6 +1,9 @@
 package com.allen.mianshiya.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.allen.mianshiya.common.ErrorCode;
 import com.allen.mianshiya.constant.CommonConstant;
 import com.allen.mianshiya.constant.RedisConstant;
@@ -13,6 +16,7 @@ import com.allen.mianshiya.model.entity.User;
 import com.allen.mianshiya.model.enums.UserRoleEnum;
 import com.allen.mianshiya.model.vo.LoginUserVO;
 import com.allen.mianshiya.model.vo.UserVO;
+import com.allen.mianshiya.satoken.DeviceUtils;
 import com.allen.mianshiya.service.UserService;
 import com.allen.mianshiya.utils.SnowflakeUtils;
 import com.allen.mianshiya.utils.SqlUtils;
@@ -199,8 +203,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         User user = this.baseMapper.selectOne(lambdaQueryWrapper);
         ThrowUtils.throwIf(user == null, ErrorCode.PARAMS_ERROR, "用户不存在或密码错误");
 
-        // 记录用户的登录态
-        request.getSession().setAttribute(USER_LOGIN_STATE, user);
+        // 记录用户的登录态 （旧方法）
+//        request.getSession().setAttribute(USER_LOGIN_STATE, user);
+
+        // Sa-Token 登录，并指定设备，同端登录互斥
+        StpUtil.login(user.getId(), DeviceUtils.getRequestDevice(request));
+        StpUtil.getSession().set(USER_LOGIN_STATE, user);
+
         return this.getLoginUserVO(user);
     }
 
@@ -238,7 +247,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 }
             }
             // 记录用户的登录态
-            request.getSession().setAttribute(USER_LOGIN_STATE, user);
+//        request.getSession().setAttribute(USER_LOGIN_STATE, user);
+            // Sa-Token 登录，并指定设备，同端登录互斥
+            StpUtil.login(user.getId(), DeviceUtils.getRequestDevice(request));
+            StpUtil.getSession().set(USER_LOGIN_STATE, user);
             return getLoginUserVO(user);
         }
     }
@@ -252,11 +264,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public User getLoginUser(HttpServletRequest request) {
         // 先判断是否已登录
-        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
-        User currentUser = (User) userObj;
-        ThrowUtils.throwIf(currentUser == null, ErrorCode.NOT_LOGIN_ERROR);
-        return currentUser;
+        Object loginId = StpUtil.getLoginIdDefaultNull();
+        if (Objects.isNull(loginId)) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+        }
+        // 从当前登录用户信息中获取角色
+        Object userObj = StpUtil.getSessionByLoginId(loginId).get(USER_LOGIN_STATE);
+        if (userObj == null) return null;
+
+        // 转为JSON对象
+        JSONObject userObjJson = JSONUtil.parseObj(userObj);
+        return JSONUtil.toBean(userObjJson, User.class);
     }
+
 
     /**
      * 用户注销
@@ -265,10 +285,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public boolean userLogout(HttpServletRequest request) {
-        ThrowUtils.throwIf(request.getSession().getAttribute(USER_LOGIN_STATE) == null,
-                ErrorCode.OPERATION_ERROR, "未登录");
+        StpUtil.checkLogin();
         // 移除登录态
-        request.getSession().removeAttribute(USER_LOGIN_STATE);
+        StpUtil.logout();
         return true;
     }
 
