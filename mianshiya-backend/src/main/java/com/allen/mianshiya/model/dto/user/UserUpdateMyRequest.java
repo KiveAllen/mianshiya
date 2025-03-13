@@ -1,5 +1,6 @@
 package com.allen.mianshiya.model.dto.user;
 
+import java.io.Serial;
 import java.io.Serializable;
 import lombok.Data;
 
@@ -25,5 +26,6 @@ public class UserUpdateMyRequest implements Serializable {
      */
     private String userProfile;
 
+    @Serial
     private static final long serialVersionUID = 1L;
 }

@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -53,5 +54,6 @@ public class QuestionBankQuestion implements Serializable {
     private Integer questionOrder;
 
     @TableField(exist = false)
+    @Serial
     private static final long serialVersionUID = 1L;
 }

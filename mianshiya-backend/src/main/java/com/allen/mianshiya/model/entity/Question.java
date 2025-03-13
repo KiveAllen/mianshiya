@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -118,5 +119,6 @@ public class Question implements Serializable {
     private Integer needVip;
 
     @TableField(exist = false)
+    @Serial
     private static final long serialVersionUID = 1L;
 }

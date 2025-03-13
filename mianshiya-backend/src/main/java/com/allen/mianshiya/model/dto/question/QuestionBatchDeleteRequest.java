@@ -2,6 +2,7 @@ package com.allen.mianshiya.model.dto.question;
 
 import lombok.Data;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 
@@ -11,6 +12,7 @@ import java.util.List;
 @Data
 public class QuestionBatchDeleteRequest implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

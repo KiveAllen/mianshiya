@@ -1,6 +1,8 @@
 package com.allen.mianshiya.model.dto.user;
 
 import com.allen.mianshiya.common.PageRequest;
+
+import java.io.Serial;
 import java.io.Serializable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -32,5 +34,6 @@ public class UserQueryRequest extends PageRequest implements Serializable {
      */
     private String userRole;
 
+    @Serial
     private static final long serialVersionUID = 1L;
 }
