@@ -18,7 +18,7 @@ export const menus = [
   },
   {
     path: "https://mianshiya.com/",
-    name: "面试鸭",
+    name: "Allen智能",
     target: "_blank",
   },
   {
