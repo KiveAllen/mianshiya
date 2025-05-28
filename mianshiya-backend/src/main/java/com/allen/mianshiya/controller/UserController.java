@@ -5,7 +5,6 @@ import com.allen.mianshiya.common.BaseResponse;
 import com.allen.mianshiya.common.DeleteRequest;
 import com.allen.mianshiya.common.ErrorCode;
 import com.allen.mianshiya.common.ResultUtils;
-import com.allen.mianshiya.config.WxOpenConfig;
 import com.allen.mianshiya.constant.UserConstant;
 import com.allen.mianshiya.exception.BusinessException;
 import com.allen.mianshiya.exception.ThrowUtils;
@@ -16,10 +15,6 @@ import com.allen.mianshiya.model.vo.UserVO;
 import com.allen.mianshiya.service.UserService;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
-import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
-import me.chanjar.weixin.common.bean.oauth2.WxOAuth2AccessToken;
-import me.chanjar.weixin.mp.api.WxMpService;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,9 +33,6 @@ public class UserController {
 
     @Resource
     private UserService userService;
-
-    @Resource
-    private WxOpenConfig wxOpenConfig;
 
     /**
      * 分页获取用户封装列表
@@ -257,33 +249,6 @@ public class UserController {
                 request);
 
         return ResultUtils.success(loginUserVO);
-    }
-
-    /**
-     * 用户登录（微信开放平台）
-     *
-     * @param request HTTP请求对象
-     * @param code    微信授权码
-     * @return 登录成功后的用户信息
-     */
-    @GetMapping("/login/wx_open")
-    @Deprecated
-    public BaseResponse<LoginUserVO> userLoginByWxOpen(HttpServletRequest request, @RequestParam("code") String code) {
-        WxOAuth2AccessToken accessToken;
-        try {
-            WxMpService wxService = wxOpenConfig.getWxMpService();
-            accessToken = wxService.getOAuth2Service().getAccessToken(code);
-            WxOAuth2UserInfo userInfo = wxService.getOAuth2Service().getUserInfo(accessToken, code);
-            String unionId = userInfo.getUnionId();
-            String mpOpenId = userInfo.getOpenid();
-            if (StringUtils.isAnyBlank(unionId, mpOpenId)) {
-                throw new BusinessException(ErrorCode.SYSTEM_ERROR, "登录失败，系统错误");
-            }
-            return ResultUtils.success(userService.userLoginByMpOpen(userInfo, request));
-        } catch (Exception e) {
-            log.error("userLoginByWxOpen error", e);
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "登录失败，系统错误");
-        }
     }
 
     /**

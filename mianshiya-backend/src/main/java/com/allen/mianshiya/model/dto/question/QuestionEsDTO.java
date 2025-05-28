@@ -1,8 +1,8 @@
 package com.allen.mianshiya.model.dto.question;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
-import com.alibaba.excel.util.StringUtils;
 import com.allen.mianshiya.model.entity.Question;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
@@ -76,7 +76,7 @@ public class QuestionEsDTO implements Serializable {
         QuestionEsDTO questionEsDTO = new QuestionEsDTO();
         BeanUtils.copyProperties(question, questionEsDTO);
         String tagsStr = question.getTags();
-        if (StringUtils.isNotBlank(tagsStr)) {
+        if (StrUtil.isNotBlank(tagsStr)) {
             questionEsDTO.setTags(JSONUtil.toList(tagsStr, String.class));
         }
         return questionEsDTO;

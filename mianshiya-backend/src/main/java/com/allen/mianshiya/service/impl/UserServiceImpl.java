@@ -13,7 +13,6 @@ import com.allen.mianshiya.exception.ThrowUtils;
 import com.allen.mianshiya.mapper.UserMapper;
 import com.allen.mianshiya.model.dto.user.UserQueryRequest;
 import com.allen.mianshiya.model.entity.User;
-import com.allen.mianshiya.model.enums.UserRoleEnum;
 import com.allen.mianshiya.model.vo.LoginUserVO;
 import com.allen.mianshiya.model.vo.UserVO;
 import com.allen.mianshiya.satoken.DeviceUtils;
@@ -26,7 +25,6 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
-import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RBitSet;
 import org.redisson.api.RedissonClient;
@@ -211,48 +209,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         StpUtil.getSession().set(USER_LOGIN_STATE, user);
 
         return this.getLoginUserVO(user);
-    }
-
-    /**
-     * 用户登录（微信开放平台）
-     *
-     * @param wxOAuth2UserInfo 从微信获取的用户信息
-     * @param request          http请求
-     * @return 脱敏后的用户信息
-     */
-    @Override
-    public LoginUserVO userLoginByMpOpen(WxOAuth2UserInfo wxOAuth2UserInfo, HttpServletRequest request) {
-        String unionId = wxOAuth2UserInfo.getUnionId();
-        String mpOpenId = wxOAuth2UserInfo.getOpenid();
-        // 单机锁
-        synchronized (unionId.intern()) {
-            // 查询用户是否已存在
-            QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("union_id", unionId);
-            User user = this.getOne(queryWrapper);
-            // 被封号，禁止登录
-            if (user != null && UserRoleEnum.BAN.getValue().equals(user.getUserRole())) {
-                throw new BusinessException(ErrorCode.FORBIDDEN_ERROR, "该用户已被封，禁止登录");
-            }
-            // 用户不存在则创建
-            if (user == null) {
-                user = new User();
-                user.setUnionId(unionId);
-                user.setMpOpenId(mpOpenId);
-                user.setUserAvatar(wxOAuth2UserInfo.getHeadImgUrl());
-                user.setUserName(wxOAuth2UserInfo.getNickname());
-                boolean result = this.save(user);
-                if (!result) {
-                    throw new BusinessException(ErrorCode.SYSTEM_ERROR, "登录失败");
-                }
-            }
-            // 记录用户的登录态
-//        request.getSession().setAttribute(USER_LOGIN_STATE, user);
-            // Sa-Token 登录，并指定设备，同端登录互斥
-            StpUtil.login(user.getId(), DeviceUtils.getRequestDevice(request));
-            StpUtil.getSession().set(USER_LOGIN_STATE, user);
-            return getLoginUserVO(user);
-        }
     }
 
     /**
