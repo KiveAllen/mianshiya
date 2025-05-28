@@ -12,8 +12,8 @@ export async function addQuestionUsingPost(
     headers: {
       "Content-Type": "application/json",
     },
-      data: body,
-      ...(options || {}),
+    data: body,
+    ...(options || {}),
   });
 }
 
@@ -34,17 +34,17 @@ export async function deleteQuestionUsingDelete(
 
 /** batchDeleteQuestions POST /api/question/delete/batch */
 export async function batchDeleteQuestionsUsingPost(
-    body: API.QuestionBatchDeleteRequest,
-    options?: { [key: string]: any }
+  body: API.QuestionBatchDeleteRequest,
+  options?: { [key: string]: any }
 ) {
-    return request<API.BaseResponseBoolean_>("/api/question/delete/batch", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        data: body,
-        ...(options || {}),
-    });
+  return request<API.BaseResponseBoolean_>("/api/question/delete/batch", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    data: body,
+    ...(options || {}),
+  });
 }
 
 /** getQuestionById GET /api/question/get */
@@ -110,19 +110,37 @@ export async function listQuestionVoByPageUsingPost(
   );
 }
 
-/** searchQuestionVOByPage POST /api/question/search/page/vo */
-export async function searchQuestionVoByPageUsingPost(
-    body: API.QuestionQueryRequest,
-    options?: { [key: string]: any }
+/** listQuestionVOByPageSentinel POST /api/question/list/page/vo/sentinel */
+export async function listQuestionVoByPageSentinelUsingPost(
+  body: API.QuestionQueryRequest,
+  options?: { [key: string]: any }
 ) {
   return request<API.BaseResponsePageQuestionVO_>(
-      "/api/question/search/page/vo",
-      {
-          method: "POST",
-          headers: {
-              "Content-Type": "application/json",
-          },
-          data: body,
+    "/api/question/list/page/vo/sentinel",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      data: body,
+      ...(options || {}),
+    }
+  );
+}
+
+/** searchQuestionVOByPage POST /api/question/search/page/vo */
+export async function searchQuestionVoByPageUsingPost(
+  body: API.QuestionQueryRequest,
+  options?: { [key: string]: any }
+) {
+  return request<API.BaseResponsePageQuestionVO_>(
+    "/api/question/search/page/vo",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      data: body,
       ...(options || {}),
     }
   );

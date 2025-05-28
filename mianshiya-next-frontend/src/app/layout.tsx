@@ -29,6 +29,7 @@ const InitLayout: React.FC<
     }
   }, []);
 
+
   // 只执行一次
   useEffect(() => {
     doInitLoginUser().then((r) => console.log(r));

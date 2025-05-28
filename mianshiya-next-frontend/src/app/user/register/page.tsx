@@ -46,7 +46,7 @@ const UserLoginPage: React.FC = () => {
         form={form}
         logo={
           <Image
-            src="/assets/logo.jpg"
+            src="/assets/logo.png"
             height={48}
             width={48}
             alt="面试鸭刷题网站 -- 小幽"
