@@ -17,11 +17,6 @@ export const menus = [
     name: "题目",
   },
   {
-    path: "https://mianshiya.com/",
-    name: "Allen智能",
-    target: "_blank",
-  },
-  {
     path: "/admin",
     name: "管理",
     icon: <CrownOutlined />,

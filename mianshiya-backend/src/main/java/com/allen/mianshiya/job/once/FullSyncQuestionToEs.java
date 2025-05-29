@@ -7,13 +7,14 @@ import com.allen.mianshiya.model.entity.Question;
 import com.allen.mianshiya.service.QuestionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.stream.Collectors;
 
 // 全量同步题目到 ES 组件
-//@Component
+@Component
 @Slf4j
 public class FullSyncQuestionToEs implements CommandLineRunner {
 

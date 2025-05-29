@@ -1,6 +1,7 @@
 package com.allen.mianshiya.controller;
 
 import cn.dev33.satoken.annotation.SaCheckRole;
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.csp.sentinel.Entry;
 import com.alibaba.csp.sentinel.EntryType;
@@ -8,12 +9,15 @@ import com.alibaba.csp.sentinel.SphU;
 import com.alibaba.csp.sentinel.Tracer;
 import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.alibaba.csp.sentinel.slots.block.degrade.DegradeException;
+import com.alibaba.nacos.api.config.annotation.NacosValue;
 import com.allen.mianshiya.common.BaseResponse;
 import com.allen.mianshiya.common.DeleteRequest;
 import com.allen.mianshiya.common.ErrorCode;
 import com.allen.mianshiya.common.ResultUtils;
 import com.allen.mianshiya.constant.UserConstant;
+import com.allen.mianshiya.exception.BusinessException;
 import com.allen.mianshiya.exception.ThrowUtils;
+import com.allen.mianshiya.manager.CounterManager;
 import com.allen.mianshiya.model.dto.question.QuestionAddRequest;
 import com.allen.mianshiya.model.dto.question.QuestionBatchDeleteRequest;
 import com.allen.mianshiya.model.dto.question.QuestionQueryRequest;
@@ -30,6 +34,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -45,6 +50,16 @@ public class QuestionController {
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private CounterManager counterManager;
+
+    @NacosValue(value = "${warn.count:10}", autoRefreshed = true)
+    private Integer warnCount;
+
+    @NacosValue(value = "${ban.count:20}", autoRefreshed = true)
+    private Integer banCount;
+
 
     // region 增删改查 管理员
 
@@ -164,12 +179,48 @@ public class QuestionController {
      * @return QuestionVO
      */
     @GetMapping("/get/vo")
-    public BaseResponse<QuestionVO> getQuestionVOById(@RequestParam long id) {
+    public BaseResponse<QuestionVO> getQuestionVOById(@RequestParam long id, HttpServletRequest request) {
         ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
+
+        User loginUser = userService.getLoginUser(request);
+        crawlerDetect(loginUser.getId());
 
         // 获取封装类
         return ResultUtils.success(questionService.getQuestionVO(id));
     }
+
+    /**
+     * 检测爬虫
+     *
+     * @param loginUserId 登录用户id
+     */
+    private void crawlerDetect(long loginUserId) {
+        // 调用多少次时告警
+        final int WARN_COUNT = warnCount;
+        // 超过多少次封号
+        final int BAN_COUNT = banCount;
+        // 拼接访问 key
+        String key = String.format("user:access:%s", loginUserId);
+        // 一分钟内访问次数，180 秒过期
+        long count = counterManager.incrAndGetCounter(key, 1, TimeUnit.MINUTES, 180);
+        // 是否封号
+        if (count > BAN_COUNT) {
+            // 踢下线
+            StpUtil.kickout(loginUserId);
+            // 封号
+            User updateUser = new User();
+            updateUser.setId(loginUserId);
+            updateUser.setUserRole("ban");
+            userService.updateById(updateUser);
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "访问太频繁，已被封号");
+        }
+        // 是否告警
+        if (count == WARN_COUNT) {
+            // 可以改为向管理员发送邮件通知
+            throw new BusinessException(110, "警告访问太频繁");
+        }
+    }
+
 
     /**
      * 分页获取题目列表（封装类）
