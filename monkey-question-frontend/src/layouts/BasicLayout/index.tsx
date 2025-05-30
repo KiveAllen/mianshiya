@@ -56,21 +56,21 @@ export default function BasicLayout({children}: Props) {
             }}
         >
             <ProLayout
-                title="MonkeyQuestion猿题刷题平台"
+                title="猿题刷题平台"
                 layout="top"
                 logo={
                     <Image
-                        src="/assets/logo.png"
+                        src="/assets/logo.svg"
                         height={32}
                         width={32}
-                        alt="MonkeyQuestion猿题刷题网站 - 程序员小幽"
+                        alt="猿题刷题网站 - 程序员小幽"
                     />
                 }
                 location={{
                     pathname,
                 }}
                 avatarProps={{
-                    src: loginUser.userAvatar || "/assets/logo.png",
+                    src: loginUser.userAvatar || "/assets/logo.svg",
                     size: "small",
                     title: loginUser.userName || "小幽",
                     render: (props, dom) => {

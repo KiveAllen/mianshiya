@@ -47,14 +47,14 @@ const UserLoginPage: React.FC = () => {
         form={form}
         logo={
           <Image
-            src="/assets/logo.png"
+            src="/assets/logo.svg"
             height={48}
             width={48}
             alt="MonkeyQuestion猿题刷题网站 -- 小幽"
           />
         }
-        title="MonkeyQuestion猿题 - 用户登录"
-        subTitle="程序员面试刷题网站"
+        title="MonkeyQuestion - 用户登录"
+        subTitle="猿题刷题平台"
         onFinish={doSubmit}
         submitter={{
           searchConfig: {

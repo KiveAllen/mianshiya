@@ -12,10 +12,10 @@ export default function GlobalFooter() {
 
     return (
         <div className="global-footer">
-            <div>© {currentYear} 面试刷题平台</div>
+            <div>© {currentYear} 猿题刷题平台</div>
             <div>
                 <a href="https://www.github.com/KiveAllen" target="_blank">
-                    作者：github - 程序员allen
+                    作者：程序员KiveAllen
                 </a>
             </div>
         </div>

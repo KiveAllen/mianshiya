@@ -52,7 +52,7 @@ public interface UserConstant {
     /**
      * 默认头像
      */
-    String DEFAULT_USER_AVATAR = "https://www.mianshiya.com/_next/image?url=%2Flogo.png&w=32&q=75";
+    String DEFAULT_USER_AVATAR = "https://img0.baidu.com/it/u=460526629,3333284652&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500";
 
     /**
      * 默认简介
