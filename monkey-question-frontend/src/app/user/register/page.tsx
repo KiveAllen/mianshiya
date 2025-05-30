@@ -49,10 +49,10 @@ const UserLoginPage: React.FC = () => {
             src="/assets/logo.png"
             height={48}
             width={48}
-            alt="Allen智能刷题网站 -- 小幽"
+            alt="MonkeyQuestion猿题刷题网站 -- 小幽"
           />
         }
-        title="Allen智能 - 用户注册"
+        title="MonkeyQuestion猿题 - 用户注册"
         subTitle="程序员面试刷题网站"
         onFinish={doSubmit}
         submitter={{
