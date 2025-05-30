@@ -1,9 +1,9 @@
 import "./index.css";
-import React, {useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import ReactECharts from "echarts-for-react";
 import dayjs from "dayjs";
 import {getUserSignInRecordUsingGet} from "@/api/userController";
-import { message } from "antd";
+import {message} from "antd";
 
 interface Props {
 
@@ -19,10 +19,16 @@ const CalendarChart = (props: Props) => {
 
     // 请求后端获取数据
     const fetchDataList = async () => {
+
         try {
             const res = await getUserSignInRecordUsingGet({
                 year,
-            });
+                },
+                {
+                    // 告诉浏览器允许跨域请求携带凭证（Cookie）
+                    credentials: 'include',
+                }
+            );
             setDataList(res.data || []);
         } catch (e) {
             message.error("获取刷题签到记录失败，" + e.message);

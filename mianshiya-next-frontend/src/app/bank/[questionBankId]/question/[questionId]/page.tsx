@@ -1,14 +1,15 @@
 "use server"
 import Title from "antd/es/typography/Title";
-import { getQuestionBankVoByIdUsingPost } from "@/api/questionBankController";
-import { Flex, Menu } from "antd";
+import {getQuestionBankVoByIdUsingPost} from "@/api/questionBankController";
+import {Flex, Menu} from "antd";
 import "./index.css";
-import { getQuestionVoByIdUsingGet } from "@/api/questionController";
+import {getQuestionVoByIdUsingGet} from "@/api/questionController";
 import React from "react";
 import Sider from "antd/es/layout/Sider";
-import { Content } from "antd/es/layout/layout";
+import {Content} from "antd/es/layout/layout";
 import QuestionCard from "@/components/QuestionCard";
 import Link from "next/link";
+import {headers} from "next/headers";
 
 /**
  * 题库题目详情页面
@@ -19,6 +20,10 @@ export default async function BankQuestionPage({ params }) {
 
     let bank, question;
 
+    const headersList = headers();
+
+    const cookie = headersList.get("cookie");
+
     try {
         const [bankRes, questionRes] = await Promise.all([
             getQuestionBankVoByIdUsingPost({
@@ -26,10 +31,20 @@ export default async function BankQuestionPage({ params }) {
                 needQueryQuestionList: true,
                 pageSize: 100,
                 current: 1,
-            }),
+                },
+                {
+                    headers: {
+                        Cookie: cookie || "", // 添加 cookie
+                    }
+                }),
             getQuestionVoByIdUsingGet({
                 id: questionId,
-            }),
+                },
+                {
+                    headers: {
+                        Cookie: cookie || "", // 添加 cookie
+                    }
+                }),
         ]);
 
         bank = bankRes.data;
